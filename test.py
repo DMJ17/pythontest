@@ -478,3 +478,4 @@ def convert_number(s):
         return None
 
 convert_number('a')
+print (12)
