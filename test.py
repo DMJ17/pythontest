@@ -1,5 +1,5 @@
 #print "Hello World!"
-print("我于杀戮中绽放，亦如黎明中的花朵，只有完美才是可接受的！")
+# print("我于杀戮中绽放，亦如黎明中的花朵，只有完美才是可接受的！")
 
 # cars = 100
 # num =  "ab"
@@ -469,13 +469,334 @@ print("我于杀戮中绽放，亦如黎明中的花朵，只有完美才是可�
 # sentence = [first_word, second_word]
 # print (sentence)
 
-def convert_number(s):
-    try:
- #       print ('success')
-        return int(s)
-    except ValueError:
-#        print ("error")
-        return None
+# def convert_number(s):
+#     try:
+#  #       print ('success')
+#         return int(s)
+#     except ValueError:
+# #        print ("error")
+#         return None
+#
+# convert_number('a')
+# print(12)
 
-convert_number('a')
-print (12)
+# # test = 1+\
+# #     1
+# print (test)
+
+# str = 'test'
+# print(str)
+# print(str[1:3])
+
+# print('ru\nsas')
+# print(r'rei\n23')
+
+# a = set('adhfak,212')
+# print(a)
+#
+# dict = {}
+# dict['one'] = '1-tesst'
+# dict[2] = '2-test'
+#
+# dict = 23423
+# # dict = str(dict)
+# dict = dict - 1
+# print(dict)
+#
+# list = [ 1, 2, 3, 4]
+# it = iter(list)
+# for x in it:
+#     print(x,end=" ")
+
+# list = [1, 3, 4, 2]
+# for num in list:
+#     print(num, end = " ")
+#
+# it = iter(list)
+#
+# import sys
+# while True:
+#     try:
+#         print(next(it), end = " ")
+#     except StopIteration:
+#         sys.exit()
+
+# class num:
+#     def __iter__(self):
+#         self.a = 1
+#         return self
+#
+#     def __next__(self):
+#         if self.a <= 20:
+#             x = self.a
+#             self.a = self.a + 1
+#             return x
+#         else:
+#             raise StopAsyncIteration
+#
+# myclass = num()
+# myiter = iter(myclass)
+#
+# # print(next(myiter))
+# # print(next(myiter))
+# # print(next(myiter))
+# for x in myiter:
+#     print(x)
+
+# def ChangeInt(a):
+#     a = a.append(3)
+#     return
+# a = [1, 2]
+# ChangeInt(a)
+# print(a)
+# def printme(str):
+#     print(str)
+#     return
+#
+# printme(str = "test")
+
+# def printinfo(arg1, **vartuple):
+#     print('输出:')
+#     print(arg1)
+#     print(vartuple)
+#
+# printinfo(10, a = 2, b = 3)
+
+# f = open(r'C:\Users\DMJ\Desktop\工作日常记录\工作报告\日记\8.6.txt', 'r')
+# i = f.readline()
+# print(i)
+# f.close()
+# while True:
+#     try:
+#         x = int(input('pleacse enter a number:'))
+#         print('You are great!')
+#         break
+#     except:
+#         print('That was not valid number. Try again')
+#     else:
+#         print("plerse enter a nunber!")
+
+# import time
+# ticks = time.asctime(time.localtime(time.time()))
+# print('当前时间为：', ticks)
+
+
+# import _thread
+# import time
+#
+# def print_time(threadName, delay):
+#     count = 0
+#     while count < 5:
+#         time.sleep(delay)
+#         count += 1
+#         print("%s: %s" % (threadName, time.ctime(time.time())))
+#
+# try:
+#     _thread.start_new_thread(print_time, ("Thread-1", 2, ))
+#     _thread.start_new_thread(print_time, ("Thread-2", 4, ))
+# except:
+#     print("Error: 无法启动线程")
+#
+# while 1:
+#     pass
+
+# import threading
+# import time
+#
+# exitFlag = 0
+#
+# class  myThread(threading.Thread):
+#     def __init__(self, threadId, name, counter):
+#         threading.Thread.__init__(self)
+#         self.threadID = threadId
+#         self.name = name
+#         self.counter = counter
+#
+#     def run(self):
+#         print("开始线程" + self.name)
+#         #获取锁，实现同步
+#         threadLock.acquire()
+#         print_time(self.name, self.counter, 5)
+#         threadLock.release()
+#         print("退出线程" + self.name)
+#         #释放锁，开始下一个线程
+#
+# def print_time(threadName, delay, counter):
+#      while counter:
+#          time.sleep(delay)
+#          print("%s: %s" % (threadName, time.ctime(time.time())))
+#          counter -= 1
+#
+# threadLock = threading.Lock()
+# threads = []
+#
+# thread1 = myThread(1, "Thread-1", 1)
+# thread2 = myThread(2, "Thread-2", 2)
+#
+# thread1.start()
+# thread2.start()
+#
+# thread1.join()
+# thread2.join()
+# print("退出主线程")
+
+# import psycopg2
+#
+# def connectPostgreSQL():
+#     conn = psycopg2.connect(database = "test", user = "postgres",
+#                             password = "w550189", host = "10.202.62.68:22", port = "5432")
+#     print ("Opened database susccessfully！")
+#
+# connectPostgreSQL()
+
+
+# import psycopg2
+# def connectPostgreSQL():
+#     conn = psycopg2.connect(database="test", user="postgres",
+#     password = "postgres", host = "10.202.62.68", port = "5432")
+#     print ("Opened database susccessfully！")
+#     cursor = conn.cursor()
+#     # zs = cur.var(psycopg2.cur)
+#     cursor.callproc('auth.test', ('a'))
+#
+#     # sql = "Exec auth.test"
+#     # cur.execute(sql)
+#
+#     rows = cursor.fetchall()
+#     print(rows)
+#     for row in rows:
+#         print(row[0])
+#
+#     conn.commit()
+#     cursor.close()
+#     conn.close()
+# connectPostgreSQL()
+
+# ------------xml文件生成
+# import pymysql
+# import xml.dom.minidom
+#
+# def connectPostgreSQL():
+#     conn = pymysql.connect(db="upchina", user="mysql", password = "mysql", host = "47.94.1.2", port = 3306)
+#     cursor = conn.cursor()
+#     sql = "select  CREATETIME, UPDATETIME, END_DATE from FIN_BALA_SHORT limit 5"
+#     cursor.execute(sql)
+#     rows = cursor.fetchall()
+#
+#     cursor.close()
+#     conn.close()
+#
+#     doc = xml.dom.minidom.Document()
+#     root = doc.createElement('Managers')
+#     root.setAttribute('company', '00')
+#     root.setAttribute('address', '00')
+#     # 将根节点添加到文档对象中
+#     doc.appendChild(root)
+#     for i in rows:
+#         nodeManager = doc.createElement('Manager')
+#         node_id = doc.createElement('node_id')
+#         node_id.setAttribute('type', 'time')
+#         node_id.appendChild(doc.createTextNode(str(i[0])))
+#
+#         nodeManager.appendChild(node_id)
+#         root.appendChild(nodeManager)
+#
+#         fp1 = open('./mysql.xml', 'w')
+#         doc.writexml(fp1, indent='\t', addindent='\t', newl='\n', encoding="utf-8")
+#         fp1.close()
+#
+# connectPostgreSQL()
+
+# import pymysql
+# import xlwt
+
+# -----------------.xls文件生成
+# def  Exchange_Xls():
+#     conn = pymysql.connect(db="upchina", user="mysql", password = "mysql", host = "47.94.1.2", port = 3306)
+#     cursor = conn.cursor()
+#     sql = "select  CREATETIME, UPDATETIME, END_DATE from FIN_BALA_SHORT limit 5"
+#     cursor.execute(sql)
+#     results = cursor.fetchall()
+#     fields = cursor.description
+#
+#     cursor.close()
+#     conn.close()
+#
+#     xls = xlwt.Workbook()
+#     sheet = xls.add_sheet('table_manage', cell_overwrite_ok=True)
+#     for field in range(0,len(fields)):
+#         sheet.write(0,field,fields[field][0])
+#
+#     row = 1
+#     col =0
+#     for row in range(1, len(results) + 1):
+#         for col in range(0, len(fields)):
+#             sheet.write(row, col, u'%s' % results[row - 1][col])
+#     print('输入文件名：')
+#     file_name = input()
+#     xls.save('%s.xls' % str(file_name))
+#
+# Exchange_Xls()
+
+
+# import psycopg2
+# def connectPostgreSQL():
+#     conn = psycopg2.connect(database="test", user="postgres",
+#     password = "postgres", host = "10.202.62.68", port = "5432")
+#     print ("Opened database susccessfully！")
+#     cursor = conn.cursor()
+#     cursor.callproc('auth.test', ('a'))
+
+# import sqlalchemy
+# from sqlalchemy.engine.url import URL
+# postgres_db = {'drivername': 'test',
+#                'username': 'postgres',
+#                'password': 'postgres',
+#                'host': '10.202.62.68',
+#                'port': 5432}
+# print(URL(**postgres_db))
+#
+# sqlite_db = {'drivername': 'sqlite', 'database': 'db.sqlite'}
+# print(URL(**sqlite_db))
+
+from datetime import datetime
+
+import pymysql
+from sqlalchemy import Column, String, create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+# 创建对象的基类:
+Base = declarative_base()
+
+# 定义User对象:
+class User(Base):
+    # 表的名字:
+    __tablename__ = 'm_user'
+
+    # 表的结构:
+    user_id = Column(String(12), primary_key=True)
+    user_account = Column(String(12))
+
+# 初始化数据库连接:
+engine = create_engine('mysql+pymysql://root:root@localhost:3306/data')
+# 创建DBSession类型:
+# -----------增加
+Session = sessionmaker(bind=engine)
+session = Session()
+#
+# obj = User(user_id = False,user_account = '5')
+# session.add(obj)
+# session.commit()
+# session.close()
+
+ret=session.query(User).all()
+ret = session.query(User.user_id, User.user_account).all()    #结果为一个列表
+# ret = session.query(User).filter_by(name='cc').first()
+# ret = session.query(User).filter_by(name='cc').all()
+
+print(type(ret))
+print(ret)
+
+
+
