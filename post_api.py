@@ -13,7 +13,7 @@ def application(environ, start_response):
     name = request_body["name"]
     no = request_body["no"]
 
-    dic = {'myNameIs': 'name', 'myNoIs': no}
+    dic = {'myNameIs': name, 'myNoIs': no}
     return [json.dumps(dic)]
 
 if __name__ == "__main__":
