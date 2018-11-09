@@ -6,6 +6,7 @@ from datetime import datetime
 import json
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
+# json格式转换方法
 def new_alchemy_encoder():
     _visited_objs = []
 
