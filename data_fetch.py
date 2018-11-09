@@ -2,6 +2,36 @@ from sqlalchemy import Column, String, create_engine, Integer, DECIMAL, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime
+import json
+from sqlalchemy.ext.declarative import DeclarativeMeta
+
+def new_alchemy_encoder():
+    _visited_objs = []
+
+    class AlchemyEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj.__class__, DeclarativeMeta):
+                # don't re-visit self
+                if obj in _visited_objs:
+                    return None
+                _visited_objs.append(obj)
+
+                # an SQLAlchemy class
+                fields = {}
+                for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
+                    data = obj.__getattribute__(field)
+                    try:
+                        if isinstance(data, datetime):
+                            data = data.strftime('%Y-%m-%d %H:%M:%S')
+                        json.dumps(data)  # this will fail on non-encodable values, like other classes
+                        fields[field] = data
+                    except TypeError:
+                        fields[field] = None
+                return fields
+
+            return json.JSONEncoder.default(self, obj)
+    return AlchemyEncoder
 
 # 数据集类
 class Data_Set():
@@ -39,10 +69,14 @@ class Data_Set():
             BELONG_PARK = Column(DECIMAL)
             TRANS_WAY = Column(DECIMAL)
 
-        #结果返回一个列表
+        #结果返回一个json数组
         try:
             ret = session.query(BASIC_INFO).all()
-            return ret
+            msgs = []
+            for msg in ret:
+                msgs.append(msg)
+            json_data = json.dumps(msgs, cls=new_alchemy_encoder(), check_circular=False)
+            return json_data
         except SQLAlchemyError as e:
             print(e)
         finally:
@@ -84,7 +118,11 @@ class Data_Set():
         # 结果返回一个列表
         try:
             ret = session.query(INC_INFO_PRO).all()
-            return ret
+            msgs = []
+            for msg in ret:
+                msgs.append(msg)
+            json_data = json.dumps(msgs, cls=new_alchemy_encoder(), check_circular=False)
+            return json_data
         except SQLAlchemyError as e:
             print(e)
         finally:
@@ -122,7 +160,11 @@ class Data_Set():
         # 结果返回一个列表
         try:
             ret = session.query(INDU_CODE).all()
-            return ret
+            msgs = []
+            for msg in ret:
+                msgs.append(msg)
+            json_data = json.dumps(msgs, cls=new_alchemy_encoder(), check_circular=False)
+            return json_data
         except SQLAlchemyError as e:
             print(e)
         finally:
@@ -153,7 +195,11 @@ class Data_Set():
         # 结果返回一个列表
         try:
             ret = session.query(COM_INDU_RELA).all()
-            return ret
+            msgs = []
+            for msg in ret:
+                msgs.append(msg)
+            json_data = json.dumps(msgs, cls=new_alchemy_encoder(), check_circular=False)
+            return json_data
         except SQLAlchemyError as e:
             print(e)
         finally:
@@ -316,7 +362,11 @@ class Data_Set():
         # 结果返回一个列表
         try:
             ret = session.query(BALA_SHORT).all()
-            return ret
+            msgs = []
+            for msg in ret:
+                msgs.append(msg)
+            json_data = json.dumps(msgs, cls=new_alchemy_encoder(), check_circular=False)
+            return json_data
         except SQLAlchemyError as e:
             print(e)
         finally:
@@ -416,7 +466,11 @@ class Data_Set():
         # 结果返回一个列表
         try:
             ret = session.query(CASH_SHORT).all()
-            return ret
+            msgs = []
+            for msg in ret:
+                msgs.append(msg)
+            json_data = json.dumps(msgs, cls=new_alchemy_encoder(), check_circular=False)
+            return json_data
         except SQLAlchemyError as e:
             print(e)
         finally:
@@ -528,43 +582,48 @@ class Data_Set():
         # 结果返回一个列表
         try:
             ret = session.query(INCO_SHORT).all()
-            return ret
+            msgs = []
+            for msg in ret:
+                msgs.append(msg)
+            json_data = json.dumps(msgs, cls=new_alchemy_encoder(), check_circular=False)
+            return json_data
         except SQLAlchemyError as e:
             print(e)
         finally:
             session.close()
 
-data_set = Data_Set()
-# 股票基本信息
-stk_basic_info = data_set.STK_BASIC_INFO()
-print(stk_basic_info[0]. STK_UNI_CODE)
+if __name__ == "__main__":
+    data_set = Data_Set()
+    # 股票基本信息
+    stk_basic_info = data_set.STK_BASIC_INFO()
+    print(stk_basic_info)
 
-# 公司主营业务构成按产品分布信息
-# com_inc_info_pro = data_set.COM_INC_INFO_PRO()
-# print(com_inc_info_pro[0])
-# print(com_inc_info_pro[0].COM_UNI_CODE)
+    # 公司主营业务构成按产品分布信息
+    # com_inc_info_pro = data_set.COM_INC_INFO_PRO()
+    # print(com_inc_info_pro[0])
+    # print(com_inc_info_pro[0].COM_UNI_CODE)
 
-#行业代码信息
-pub_indu_code = data_set.PUB_INDU_CODE()
-print(pub_indu_code[0])
-print(pub_indu_code[0].INDU_UNI_CODE)
+    #行业代码信息
+    # pub_indu_code = data_set.PUB_INDU_CODE()
+    # print(pub_indu_code[0])
+    # print(pub_indu_code[0].INDU_UNI_CODE)
 
-#公司最新从属行业信息
-# pub_com_indu_code = data_set.PUB_COM_INDU_RELA()
-# print(pub_com_indu_code[0])
-# print(pub_com_indu_code[0].COM_UNI_CODE)
+    #公司最新从属行业信息
+    # pub_com_indu_code = data_set.PUB_COM_INDU_RELA()
+    # print(pub_com_indu_code[0])
+    # print(pub_com_indu_code[0].COM_UNI_CODE)
 
-#合并资产负债信息
-# fin_bala_short = data_set.FIN_BALA_SHORT()
-# print(fin_bala_short[0])
-# print(fin_bala_short[0].UPDATETIME)
+    #合并资产负债信息
+    # fin_bala_short = data_set.FIN_BALA_SHORT()
+    # print(fin_bala_short[0])
+    # print(fin_bala_short[0].UPDATETIME)
 
-#合并现金流量信息
-# fin_cash_short = data_set.FIN_CASH_SHORT()
-# print(fin_cash_short[0])
-# print(fin_cash_short[0].UPDATETIME)
+    #合并现金流量信息
+    # fin_cash_short = data_set.FIN_CASH_SHORT()
+    # print(fin_cash_short[0])
+    # print(fin_cash_short[0].UPDATETIME)
 
-#合并利润信息
-# fin_inco_short = data_set.FIN_INCO_SHORT()
-# print(fin_inco_short[0])
-# print(fin_inco_short[0].UPDATETIME)
+    #合并利润信息
+    # fin_inco_short = data_set.FIN_INCO_SHORT()
+    # print(fin_inco_short[0])
+    # print(fin_inco_short[0].UPDATETIME)
