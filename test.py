@@ -575,7 +575,6 @@
 #         print('That was not valid number. Try again')
 #     else:
 #         print("plerse enter a nunber!")
-
 # import time
 # ticks = time.asctime(time.localtime(time.time()))
 # print('当前时间为：', ticks)
@@ -760,43 +759,218 @@
 # print(URL(**sqlite_db))
 
 from datetime import datetime
+# ------
+# 一般mysql数据库读取
+# import pymysql
+# from sqlalchemy import Column, String, create_engine, Integer
+# from sqlalchemy.orm import sessionmaker
+# from sqlalchemy.ext.declarative import declarative_base
+#
+# # 创建对象的基类:
+# def User_list():
+#     Base = declarative_base()
+#
+#     # 定义User对象:
+#     class User(Base):
+#         # 表的名字:
+#         __tablename__ = 'm_user'
+#         # 表的结构:
+#         user_id = Column(Integer, primary_key=True)
+#         user_account = Column(String(12))
+#
+#     class Favor(Base):
+#         __tablename__ = 'm_pay'
+#         pay_id = Column(Integer, primary_key = True)
+#         user_id = Column(Integer)
+#                          # 初始化数据库连接:
+#     engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/data')
+#     # 创建DBSession类型:
+#     # -----------增加
+#     Session = sessionmaker(bind=engine)
+#     session = Session()
+#     #
+#     # obj = User(user_id = False,user_account = '5')
+#     # session.add(obj)
+#     # session.commit()
+#     # session.close()
+#
+#     # ret=session.query(User).all()
+#     # ret = session.query(User.user_id, User.user_account).all()    #结果为一个列表
+#     # ret = session.query(User).filter_by(user_id = '1').first()
+#     # ret = session.query(User).filter(User.user_id  > 5).all()
+#     ret = session.query(User).join(Favor, User.user_id == Favor.user_id, isouter=True).all()
+#     # ret = session.quert
+#
+#     print(type(ret))
+#     for i in ret:
+#         print(i.user_account)
+#
+# User_list()
 
-import pymysql
-from sqlalchemy import Column, String, create_engine
+# ------优品数据读取
+from sqlalchemy import Column, String, create_engine, Integer, DECIMAL, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 # 创建对象的基类:
-Base = declarative_base()
+def User_list():
+    Base = declarative_base()
 
-# 定义User对象:
-class User(Base):
-    # 表的名字:
-    __tablename__ = 'm_user'
+    # 定义User对象:
+    class User(Base):
+        # 表的名字:
+        __tablename__ = 'STK_BASIC_INFO'
+        # 表的结构:
+        STK_UNI_CODE = Column(DECIMAL, primary_key= True)
+        ISVALID = Column(DECIMAL)
+        # CREATETIME = Column(String(12))
 
-    # 表的结构:
-    user_id = Column(String(12), primary_key=True)
-    user_account = Column(String(12))
 
-# 初始化数据库连接:
-engine = create_engine('mysql+pymysql://root:root@localhost:3306/data')
-# 创建DBSession类型:
+    # class Favor(Base):
+    #     __tablename__ = 'm_pay'
+    #     pay_id = Column(Integer, primary_key = True)
+    #     user_id = Column(Integer)
+                         # 初始化数据库连接:
+    engine = create_engine('mysql+pymysql://mysql:mysql@47.94.1.2:3306/upchina')
+    # 创建DBSession类型:
 # -----------增加
-Session = sessionmaker(bind=engine)
-session = Session()
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    #
+    # obj = User(user_id = False,user_account = '5')
+    # session.add(obj)
+    # session.commit()
+    # session.close()
+
+    # ret=session.query(User).all().first()
+    ret = session.query(User.STK_UNI_CODE, User.ISVALID).limit(2).all()    #结果为一个列表
+    # ret = session.query(User).filter_by(user_id = '1').first()
+    # ret = session.query(User).filter(User.user_id  > 5).all()
+    # ret = session.query(User).join(Favor, User.user_id == Favor.user_id, isouter=True).all()
+    # ret = session.quert
+
+    print(type(ret))
+    # print(ret)
+    for i in ret:
+        print(i.STK_UNI_CODE)
+User_list()
+
+
+# -----postrgresql 数据库
+# import psycopg2
+# from sqlalchemy import Column, String, create_engine, Integer
+# from sqlalchemy.orm import sessionmaker
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.engine.url import URL
+# from sqlalchemy import MetaData
+# from sqlalchemy import Table
+    # # 创建对象的基类:
+# def User_list():
 #
-# obj = User(user_id = False,user_account = '5')
-# session.add(obj)
-# session.commit()
-# session.close()
+#     engine = create_engine('postgres://postgres:postgres@10.202.62.68:5432')
+#
+#     engine.execute('INSERT INTO "test" '
+#                    '(id,name)'
+#                    "VALUES (8,'qwe')")
+#     # result = engine.execute('SELECT * FROM '
+#     #                         'mun.test')
+#     # for _r in result:
+#     #     print(_r)
+#
+# User_list()
 
-ret=session.query(User).all()
-ret = session.query(User.user_id, User.user_account).all()    #结果为一个列表
-# ret = session.query(User).filter_by(name='cc').first()
-# ret = session.query(User).filter_by(name='cc').all()
+import psycopg2
+# from sqlalchemy import Column, String, create_engine, Integer, ForeignKey
+#
+# from sqlalchemy.orm import sessionmaker
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.exc import SQLAlchemyError
+# from sqlalchemy.engine.url import URL
+# from sqlalchemy import MetaData
+# from sqlalchemy import Table
+# from sqlalchemy.orm import sessionmaker,relationship
 
-print(type(ret))
-print(ret)
 
+    # 创建对象的基类:
+# def User_list():
+#     engine = create_engine('postgres://postgres:postgres@10.202.62.68:5432')
+#     Base = declarative_base()
+    # 把表抽象成类
+    # class TestTable(Base):
+    #     __tablename__ = 'test'
+    #     __table_args__ = {
+    #         'schema': 'mun'}
+    #
+    #     id   = Column(Integer, primary_key = True)
+    #     name  = Column(String)
+    # # 连接操作
+    # Base.metadata.create_all(bind = engine)
+    # # 实例化一个会话
+    # Session = sessionmaker(engine)
+    # Session.configure(bind = engine)
+    # session = Session()
+# ——一新增方法一
+#     try:
+#         test1 = TestTable(id = 6, name = 'a')
+#         session.add(test1)
+#         session.commit()
+#     except SQLAlchemyError as e:
+#         print(e)
+#     finally:
+#         session.close()
+ # -----新增方法二
+    # data = {3:3,4:4 }
+    # try:
+    #     for _id,_name in data.items():
+    #         row = TestTable(id = _id,name = _name)
+    #         session.add(row)
+    #         session.commit()
+    # except SQLAlchemyError as e:
+    #     print(e)
+    # finally:
+    #     session.close()
+
+# -------查询
+#     ret = session.query(TestTable).filter(TestTable.id == 1).all()
+#     for i in ret:
+#         print(i.id)
+
+
+# -----关联
+
+#     class User(Base):
+#         __tablename__ = 'test'
+#         __table_args__ ={'schema': 'public'}
+#
+#         id = Column(Integer,primary_key=True)
+#         name = Column(String)
+#
+#     class Address(Base):
+#         __tablename__ = 'test'
+#         __table_args__ = {
+#             'schema': 'mun'}
+#
+#         id = Column(Integer, primary_key=True)
+#         account = Column(String)
+#         test_id = Column(Integer, ForeignKey("public.test.id"))
+#
+#         user = relationship('User',backref="test")
+#     #
+#
+#     Base.metadata.create_all(bind = engine)
+#     # 实例化一个会话
+#     Session = sessionmaker(engine)
+#     Session.configure(bind = engine)
+#     session = Session()
+#     #
+#     # sql = session.query(Address).join(User, isouter=True)
+#     # print(sql)
+#     ret = session.query(Address).join(User, isouter=True).all()
+#     for i in ret:
+#         print(i.id, i.account, i.user.name)
+# User_list()
+
+
+# coding:utf-8
 
 

@@ -2,6 +2,8 @@ from sqlalchemy import Column, String, create_engine, Integer, DECIMAL, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import SQLAlchemyError
+from django.http import JsonResponse
+
 import json
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from datetime import datetime
@@ -32,7 +34,7 @@ def new_alchemy_encoder():
 
             return json.JSONEncoder.default(self, obj)
     return AlchemyEncoder
-# 数据集类
+# # 数据集类
 class Data_Set():
 
     # 创建对象的基类:
@@ -66,7 +68,7 @@ class Data_Set():
             FOUR_INDU_UNI_CODE = Column(DECIMAL)
 
         try:
-            ret = session.query(INDU_CODE).all()
+            ret = session.query(INDU_CODE).limit(2)
             msgs = []
             for msg in ret:
                 msgs.append(msg)
@@ -78,9 +80,8 @@ class Data_Set():
         finally:
             session.close()
 
-data_set = Data_Set()
-#行业代码信息
-pub_indu_code = data_set.PUB_INDU_CODE()
-print(pub_indu_code)
-
-# print(pub_indu_code[0].INDU_UNI_CODE)
+if __name__ == '__main__':
+    data_set = Data_Set()
+    #行业代码信息
+    pub_indu_code = data_set.PUB_INDU_CODE()
+    print(pub_indu_code)
