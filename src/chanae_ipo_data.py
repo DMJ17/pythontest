@@ -50,7 +50,7 @@ def cash_flow(self, fin_basic_gen, prospectusMD5, file_name):
         data_sql = tuple(data)
         return data_sql
 
-# 利润表提取
+# 利润表的提取
 def income(self, fin_basic_gen, prospectusMD5, file_name):
     data = []
     unit = fin_basic_gen['货币单位']
