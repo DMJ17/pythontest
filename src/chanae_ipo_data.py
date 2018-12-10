@@ -100,7 +100,7 @@ def financial_indicators(self, fin_basic_gen, prospectusMD5, file_name):
         if pandas.isnull(value_fin):
             value_fin = None
         data.append(value_fin)
-    # del data[11]
+    del data[11]
     data_sql = tuple(data)
     return data_sql
 
@@ -113,7 +113,7 @@ def md5_passwd(file_name):
 
 # sql生产时values中的字符串生成
 def make_fromat(num):
-    print(num)
+    # print(num)
     for i in range(num):
         if i == 0:
             format = '%s'
@@ -142,10 +142,13 @@ class InsertData():
             file_name = os.path.splitext(file)
             file_name = str(file_name[0])
             res = md5_passwd(file_name)
-            print(file_name)
-            print(res)
+            # print(file_name)
+            # print(res)
             sql = 'insert into file values(%s, %s)'
-            cursor.execute(sql ,(res, file_name))
+            try:
+                cursor.execute(sql ,(res, file_name))
+            except Exception as e:
+                print(e)
 
     # 董事基本情况
     def director_information(self, file_name, prospectusMD5, cursor, dic_data):
@@ -165,14 +168,13 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                print(data_sql.__len__())
-                print(data_sql)
+                # print(data_sql.__len__())
+                # print(data_sql)
                 try:
                     cursor.execute(sql_director_information, data_sql)
                 except Exception as e:
-                    print(e)
-                    fp = open(r'C:\Users\DMJ\Desktop\工作日常记录\资料\json_v2\error\董事基本情况.txt' ,"a", encoding='utf-8')
-                    fp.write('21312\r\n')
+                    print(e, file_name, 1)
+
 
     # 重大诉讼事项
     def major_lawsuit(self, file_name, prospectusMD5, cursor, dic_data):
@@ -185,19 +187,20 @@ class InsertData():
                 pkey_md5 = md5_passwd(pkey)
                 data.append(pkey_md5)
                 data.append(prospectusMD5)
+                data.append(None)
                 if isinstance(major_lawsuit, dict):
                     for key, value in major_lawsuit.items():
                         if pandas.isnull(value):
                             value = None
                         data.append(value)
-                    data.append(None)
                     data_sql = tuple(data)
-                    print(data_sql.__len__())
-                    print(file_name)
+                    # print(data_sql.__len__())
+                    # print(data)
+                    # print(file_name)
                 try:
                     cursor.execute(sql_major_lawsuit, data_sql)
                 except Exception as e:
-                    print(e)
+                    print(e, file_name, 2)
 
     # 募集资金与运用
     def fund_raising(self, file_name, prospectusMD5, cursor, dic_data):
@@ -216,12 +219,12 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                print(data_sql)
-                print(data_sql.__len__())
+                # print(data_sql)
+                # print(data_sql.__len__())
                 try:
                     cursor.execute(sql_fund_raising, data_sql)
                 except Exception as e:
-                    print(e)
+                    print(e, file_name, 3)
 
     # 专利
     def patent(self, file_name, prospectusMD5, cursor, dic_data):
@@ -240,12 +243,12 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                print(data_sql)
-                print(data_sql.__len__())
+                # print(data_sql)
+                # print(data_sql.__len__())
                 try:
                     cursor.execute(sql_patent, data_sql)
                 except  Exception as e:
-                    print(e)
+                    print(e, file_name, 4)
 
     # 发行人相关信息
     def issuer_information(self, file_name, prospectusMD5, cursor, dic_data):
@@ -261,15 +264,13 @@ class InsertData():
                 if pandas.isnull(value):
                     value = None
                 data.append(value)
-                data_sql = tuple(data)
-            print(data_sql.__len__())
-            print(data_sql)
-            if data_sql.__len__() == 13:
-                try:
-                    print(file_name)
-                    cursor.execute(sql_issuer_information, data_sql)
-                except Exception as e:
-                    print(e)
+            data_sql = tuple(data)
+            # print(data_sql.__len__())
+            # print(data_sql)
+            try:
+                cursor.execute(sql_issuer_information, data_sql)
+            except Exception as e:
+                print(e,file_name,5)
 
     # 主要客户
     def major_client(self, file_name, prospectusMD5, cursor, dic_data):
@@ -287,13 +288,14 @@ class InsertData():
                         if pandas.isnull(value):
                             value = None
                         data.append(value)
+                    data.insert(3, None)
                     data_sql = tuple(data)
-                    print(data_sql.__len__())
-                    print(data_sql)
+                    # print(data_sql.__len__())
+                    # print(data_sql)
                 try:
                     cursor.execute(sql_major_client, data_sql)
                 except Exception as e:
-                    print(e)
+                    print(e, file_name, 6)
 
     # 主要供应商
     def major_supplier(self, file_name, prospectusMD5, cursor, dic_data):
@@ -311,13 +313,14 @@ class InsertData():
                         if pandas.isnull(value):
                             value = None
                         data.append(value)
+                    data.insert(3, None)
                     data_sql = tuple(data)
-                    print(data_sql.__len__())
-                    print(data_sql)
+                    # print(data_sql.__len__())
+                    # print(data_sql)
                 try:
                     cursor.execute(sql_major_supplier, data_sql)
                 except Exception as e:
-                    print(e)
+                    print(e, file_name, 7)
 
     # 重大合同
     def major_contract(self, file_name, prospectusMD5, cursor, dic_data):
@@ -336,14 +339,13 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                    print(data_sql.__len__())
-                    print(data_sql)
-                    print(file_name)
+                    # print(data_sql.__len__())
+                    # print(data_sql)
+                    # print(file_name)
                 try:
                     cursor.execute(sql_major_contract, data_sql)
                 except Exception as e:
-                    print(e)
-                print(data_sql)
+                    print(e, file_name, 8)
 
     # 发行人所处行业
     def issuer_profession(self, file_name, prospectusMD5, cursor, dic_data):
@@ -362,13 +364,13 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                    print(data_sql.__len__())
-                    print(data_sql)
-                    print(file_name)
+                    # print(data_sql.__len__())
+                    # print(data_sql)
+                    # print(file_name)
                 try:
                     cursor.execute(sql_issuer_profession, data_sql)
                 except Exception as e:
-                    print(e)
+                    print(e, file_name, 9)
 
     # 盈利能力
     def profitability(self, file_name, prospectusMD5, cursor, dic_data):
@@ -395,16 +397,15 @@ class InsertData():
                     data.append(temp_num)
 
                     data_sql = tuple(data)
-
-                    print(file_name)
-                    print(data.__len__())
-                    print(data_sql)
+                    # print(file_name)
+                    # print(data.__len__())
+                    # print(data_sql)
                     try:
                         cursor.execute(
                             'insert into profitability(pkey, prospectusMD5, table_date, currency_unit, product_type, amount, proportion, movement, business_type, composition_type)'
                             'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data_sql)
                     except  Exception as e:
-                         print(e)
+                        print(e, file_name, 10)
             for key, value in issuer_profession['营业成本分析'].items():
                 temp = key
                 for each_one in value:
@@ -426,14 +427,14 @@ class InsertData():
                     data.append(temp_num)
 
                     data_sql = tuple(data)
-                    print(data.__len__())
-                    print(data_sql)
+                    # print(data.__len__())
+                    # print(data_sql)
                     try:
                         cursor.execute(
                             'insert into profitability(pkey, prospectusMD5, table_date, currency_unit, product_type, amount, proportion, movement, business_type, composition_type)'
                             'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data_sql)
                     except  Exception as e:
-                        print(e)
+                        print(e, file_name, 11)
 
     # 资产负债表
     def balance(self, file_name, prospectusMD5, cursor, dic_data):
@@ -443,14 +444,14 @@ class InsertData():
             for fin_basic_gen in dic_data['财务基本情况及财务指标']:
                 if isinstance(fin_basic_gen['合并资产负债表'], dict):
                     data_bala = balance(self, fin_basic_gen, prospectusMD5, file_name)
-                    print(data_bala.__len__())
-                    print(file_name)
-                    print(data_bala)
+                    # print(data_bala.__len__())
+                    # print(file_name)
+                    # print(data_bala)
 
                     try:
                         cursor.execute(sql_balance, data_bala)
                     except Exception as e:
-                        print(e)
+                        print(e, file_name, 12)
 
 
     # 现金流量表
@@ -461,12 +462,12 @@ class InsertData():
             for fin_basic_gen in dic_data['财务基本情况及财务指标']:
                 if isinstance(fin_basic_gen['合并现金流量表'], dict):
                     data_cash_flow = cash_flow(self, fin_basic_gen, prospectusMD5, file_name)
-                    print(data_cash_flow.__len__())
-                    print(data_cash_flow)
+                    # print(data_cash_flow.__len__())
+                    # print(data_cash_flow)
                     try:
                         cursor.execute(sql_cash_flow, data_cash_flow)
                     except Exception as e:
-                        print(e)
+                        print(e, file_name, 13)
 
     # 利润表
     def income(self, file_name, prospectusMD5, cursor, dic_data):
@@ -476,12 +477,12 @@ class InsertData():
             for fin_basic_gen in dic_data['财务基本情况及财务指标']:
                 if isinstance(fin_basic_gen['合并利润表'], dict):
                     data_income = income(self, fin_basic_gen, prospectusMD5, file_name)
-                    print(file_name)
+                    # print(file_name)
                     # print(data_income)
                     try:
                         cursor.execute(sql_income ,data_income)
                     except Exception as e:
-                        print(e)
+                        print(e, file_name, 14)
 
     # 主要财务指标表
     def main_financial_indicators(self, file_name, prospectusMD5, cursor, dic_data):
@@ -492,12 +493,12 @@ class InsertData():
                 if isinstance(fin_basic_gen['基本财务指标'], dict):
                     data_fin_ind = financial_indicators(self, fin_basic_gen, prospectusMD5, file_name)
                     # print(data_fin_ind.__len__())
-                    # if data_fin_ind.__len__() == 17:
-                    print(file_name)
+                    # print(data_fin_ind)
+                    # print(file_name)
                     try:
                         cursor.execute(sql_main_financial_indicators ,data_fin_ind)
                     except Exception as e:
-                        print(e)
+                        print(e, file_name, 15)
 
     #实际控制人情况
     def actual_controller_info(self, file_name, prospectusMD5, cursor, dic_data):
@@ -519,12 +520,12 @@ class InsertData():
                     data.insert(8, None)
                     data.insert(9, None)
                     data.insert(10,'国有控股主体')
-                    print(data.__len__())
-                    print(data)
+                    # print(data.__len__())
+                    # print(data)
                     try:
                         cursor.execute(sql_actual_controller_info, data)
                     except Exception as e:
-                        print(e)
+                        print(e, file_name, 16)
 
                 for each_one in dic_data['实际控制人简要情况'].get('自然人', None):
                     data = []
@@ -538,13 +539,13 @@ class InsertData():
                     data.insert(8, None)
                     data.insert(9, None)
                     data.insert(10, '自然人')
-                    print(data)
+                    # print(data)
                     try:
                         cursor.execute('insert into actual_controller_info(pkey, prospectusMD5, name, principal, identity_number, '
                                        'nationality, direct_holding_ratio, indirect_holding_ratio, nature, pledged_shares, type) '
                                        'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data)
                     except Exception as e:
-                        print(e)
+                        print(e, file_name, 17)
 
 
                 for each_one in dic_data['实际控制人简要情况'].get('其他', None):
@@ -559,13 +560,13 @@ class InsertData():
                     data.insert(8, None)
                     data.insert(9, None)
                     data.insert(10, '其他')
-                    print(data)
+                    # print(data)
                     try:
                         cursor.execute('insert into actual_controller_info(pkey, prospectusMD5, name, nature, direct_holding_ratio,'
                                        ' indirect_holding_ratio, pledged_shares, principal, identity_number, nationality, type) '
                                        'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data)
                     except Exception as e:
-                        print(e)
+                        print(e, file_name, 18)
 
 
     # 释义
@@ -581,11 +582,11 @@ class InsertData():
             data.append(key)
             data.append(value)
             data_sql = tuple(data)
-            print(data_sql)
+            # print(data_sql)
             try:
                 cursor.execute(sql_paraphrase, data_sql)
             except Exception as e:
-                print(e)
+                print(e, file_name, 19)
 
     # 控股股东情况
     def controlling_shareholder_info(self, file_name, prospectusMD5, cursor, dic_data):
@@ -607,13 +608,12 @@ class InsertData():
                                 value = None
                             data.append(value)
                     data_sql = tuple(data)
-                    print(data_sql)
-                print(data_sql)
+                # print(data_sql)
 
         try:
             cursor.execute(sql_controlling_shareholder_info, data_sql)
         except Exception as e:
-            print(e)
+            print(e, file_name, 20)
 
     # 监事基本情况
     def supervisor_information(self, file_name, prospectusMD5, cursor, dic_data):
@@ -623,7 +623,6 @@ class InsertData():
             for person_infor in dic_data['监事基本情况']:
                 data = []
                 pkey = str(file_name) + str(person_infor['姓名']) + str(person_infor['出生年月'])
-                print(pkey)
                 pkey_md5 = md5_passwd(pkey)
                 data.append(pkey_md5)
                 data.append(prospectusMD5)
@@ -633,12 +632,12 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                print(data_sql.__len__())
-                print(data_sql)
+                # print(data_sql.__len__())
+                # print(data_sql)
                 try:
                     cursor.execute(sql_supervisor_information, data_sql)
                 except Exception as e:
-                    print(e)
+                    print(e, file_name, 21)
 
     # 高管基本情况
     def management_information(self, file_name, prospectusMD5, cursor, dic_data):
@@ -648,7 +647,6 @@ class InsertData():
             for person_infor in dic_data['高管基本情况']:
                 data = []
                 pkey = str(file_name) + str(person_infor['姓名']) + str(person_infor['出生年月'])
-                print(pkey)
                 pkey_md5 = md5_passwd(pkey)
                 data.append(pkey_md5)
                 data.append(prospectusMD5)
@@ -658,12 +656,12 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                print(data_sql.__len__())
-                print(data_sql)
+                # print(data_sql.__len__())
+                # print(data_sql)
                 try:
                     cursor.execute(sql_management_information, data_sql)
                 except Exception as e:
-                    print(e)
+                    print(e, file_name, 22)
 
     # 核心技术人员基本情况
     def core_technician_info(self, file_name, prospectusMD5, cursor, dic_data):
@@ -673,7 +671,6 @@ class InsertData():
             for person_infor in dic_data['核心技术人员基本情况']:
                 data = []
                 pkey = str(file_name) + str(person_infor['姓名']) + str(person_infor['出生年月'])
-                print(pkey)
                 pkey_md5 = md5_passwd(pkey)
                 data.append(pkey_md5)
                 data.append(prospectusMD5)
@@ -683,12 +680,12 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                print(data_sql.__len__())
-                print(data_sql)
+                # print(data_sql.__len__())
+                # print(data_sql)
                 try:
                     cursor.execute(sql_core_technician_info, data_sql)
                 except Exception as e:
-                    print(e)
+                    print(e, file_name, 23)
 
 
 # if __name__ == '__main__':
