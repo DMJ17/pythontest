@@ -2,6 +2,27 @@ import os
 import os.path
 import pandas
 import hashlib
+data_file_path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v3\json_final'
+error_file_path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v2\error'
+error_file_schames = (
+    '董事基本情况',
+    '重大诉讼事项',
+    '募集资金与运用',
+    '专利',
+    '发行人相关信息',
+    '主要客户',
+    '主要供应商',
+    '重大合同',
+    '发行人所处行业',
+    '盈利能力',
+    '资产负债表',
+    '现金流量表',
+    '利润表',
+    '主要财务指标表',
+    '监事基本情况',
+    '高管基本情况',
+    '核心技术人员基本情况'
+)
 
 # 资产负债提取
 def balance(self, fin_basic_gen, prospectusMD5, file_name):
@@ -22,6 +43,8 @@ def balance(self, fin_basic_gen, prospectusMD5, file_name):
 
     for key_bala, value_bala in fin_basic_gen['合并资产负债表'].items():
         for key, value in value_bala.items():
+            if pandas.isnull(value):
+                value = None
             data_bala.append(value)
     data_sql = tuple(data_bala)
     return data_sql
@@ -113,7 +136,6 @@ def md5_passwd(file_name):
 
 # sql生产时values中的字符串生成
 def make_fromat(num):
-    # print(num)
     for i in range(num):
         if i == 0:
             format = '%s'
@@ -132,19 +154,18 @@ def get_field_num(cursor, table_name):
     return num
 
 
-class InsertData():
+class InsertData(object):
     # 公司字典
     def file(self,cursor):
         # 获取所有文件名，生成公司名对应的md5，一次生成使用，除非公司名做出改变
-        path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v3\json_final'
-        files = os.listdir(path)
+        # path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v3\json_final'
+        files = os.listdir(data_file_path)
         for file in files :
             file_name = os.path.splitext(file)
             file_name = str(file_name[0])
             res = md5_passwd(file_name)
-            # print(file_name)
-            # print(res)
             sql = 'insert into file values(%s, %s)'
+
             try:
                 cursor.execute(sql ,(res, file_name))
             except Exception as e:
@@ -152,7 +173,9 @@ class InsertData():
 
     # 董事基本情况
     def director_information(self, file_name, prospectusMD5, cursor, dic_data):
-        # fp = open(r'C:\Users\DMJ\Desktop\工作日常记录\资料\json_v2\error\董事基本情况.txt', "w", encoding='utf-8')
+        # fp = open(r'C:\Users\DMJ\Desktop\工作日常记录\资料\json_v2\error\董事基本情况.txt', "a", encoding='utf-8')
+        error_file_route = os.path.join(error_file_path, error_file_schames[0] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_director_information = make_fromat(get_field_num(cursor, 'director_information'))
         sql_director_information = 'insert into director_information values(%s)' % fromat_director_information
         if dic_data['控股股东简要情况'] is not None:
@@ -168,16 +191,20 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                # print(data_sql.__len__())
-                # print(data_sql)
+
                 try:
                     cursor.execute(sql_director_information, data_sql)
                 except Exception as e:
                     print(e, file_name, 1)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
 
     # 重大诉讼事项
     def major_lawsuit(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[1] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_major_lawsuit = make_fromat(get_field_num(cursor, 'major_lawsuit'))
         sql_major_lawsuit = 'insert into major_lawsuit values(%s)' % fromat_major_lawsuit
         if dic_data['重大诉讼事项'] is not None:
@@ -194,16 +221,19 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                    # print(data_sql.__len__())
-                    # print(data)
-                    # print(file_name)
+
                 try:
                     cursor.execute(sql_major_lawsuit, data_sql)
                 except Exception as e:
                     print(e, file_name, 2)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
     # 募集资金与运用
     def fund_raising(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[2] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_fund_raising = make_fromat(get_field_num(cursor, 'fund_raising'))
         sql_fund_raising = 'insert into fund_raising values(%s)' % fromat_fund_raising
         if dic_data['募集资金与运用'] is not None:
@@ -219,21 +249,27 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                # print(data_sql)
-                # print(data_sql.__len__())
+
                 try:
                     cursor.execute(sql_fund_raising, data_sql)
                 except Exception as e:
                     print(e, file_name, 3)
+                    print(e, file_name, 2)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
     # 专利
     def patent(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[3] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_patent = make_fromat(get_field_num(cursor, 'patent'))
         sql_patent = 'insert into patent values(%s)' % fromat_patent
         if dic_data['专利'] is not None:
             for patent in dic_data['专利']:
                 data = []
-                pkey = str(file_name) + str(patent['专利名称'])
+                pkey = str(file_name) + str(patent['专利号'])
+                print(str(patent['专利号']))
                 pkey_md5 = md5_passwd(pkey)
                 data.append(pkey_md5)
                 data.append(prospectusMD5)
@@ -243,15 +279,19 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                # print(data_sql)
-                # print(data_sql.__len__())
+
                 try:
                     cursor.execute(sql_patent, data_sql)
                 except  Exception as e:
                     print(e, file_name, 4)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
     # 发行人相关信息
     def issuer_information(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[4] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_issuer_information = make_fromat(get_field_num(cursor, 'issuer_information'))
         sql_issuer_information = 'insert into issuer_information values(%s)' % fromat_issuer_information
         if isinstance(dic_data, dict):
@@ -265,15 +305,19 @@ class InsertData():
                     value = None
                 data.append(value)
             data_sql = tuple(data)
-            # print(data_sql.__len__())
-            # print(data_sql)
+
             try:
                 cursor.execute(sql_issuer_information, data_sql)
             except Exception as e:
                 print(e,file_name,5)
+                infor = str(file_name + str(e))
+                fp.write(infor + '\n\r')
+        fp.close()
 
     # 主要客户
     def major_client(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[5] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_major_client = make_fromat(get_field_num(cursor, 'major_client'))
         sql_major_client = 'insert into major_client values(%s)' % fromat_major_client
         if dic_data['主要客户'] is not None:
@@ -290,15 +334,19 @@ class InsertData():
                         data.append(value)
                     data.insert(3, None)
                     data_sql = tuple(data)
-                    # print(data_sql.__len__())
-                    # print(data_sql)
+
                 try:
                     cursor.execute(sql_major_client, data_sql)
                 except Exception as e:
                     print(e, file_name, 6)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
     # 主要供应商
     def major_supplier(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[6] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_major_supplier = make_fromat(get_field_num(cursor, 'major_supplier'))
         sql_major_supplier = 'insert into major_supplier values(%s)' % fromat_major_supplier
         if dic_data['主要供应商'] is not None:
@@ -315,15 +363,19 @@ class InsertData():
                         data.append(value)
                     data.insert(3, None)
                     data_sql = tuple(data)
-                    # print(data_sql.__len__())
-                    # print(data_sql)
+
                 try:
                     cursor.execute(sql_major_supplier, data_sql)
                 except Exception as e:
                     print(e, file_name, 7)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
     # 重大合同
     def major_contract(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[7] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_major_contract = make_fromat(get_field_num(cursor, 'major_contract'))
         sql_major_contract = 'insert into major_contract values(%s)' % fromat_major_contract
         if dic_data['重大合同'] is not None:
@@ -339,16 +391,19 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                    # print(data_sql.__len__())
-                    # print(data_sql)
-                    # print(file_name)
+
                 try:
                     cursor.execute(sql_major_contract, data_sql)
                 except Exception as e:
                     print(e, file_name, 8)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
     # 发行人所处行业
     def issuer_profession(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[8] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_issuer_profession = make_fromat(get_field_num(cursor, 'issuer_profession'))
         sql_issuer_profession = 'insert into issuer_profession values(%s)' % fromat_issuer_profession
         if dic_data['发行人所处行业'] is not None:
@@ -364,16 +419,19 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                    # print(data_sql.__len__())
-                    # print(data_sql)
-                    # print(file_name)
+
                 try:
                     cursor.execute(sql_issuer_profession, data_sql)
                 except Exception as e:
                     print(e, file_name, 9)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
     # 盈利能力
     def profitability(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[9] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         for issuer_profession in dic_data['盈利能力']:
             import_time = issuer_profession['报表日期']
             for key, value in issuer_profession['营业收入分析'].items():
@@ -395,17 +453,17 @@ class InsertData():
                     elif temp == '主营业务收入按业务构成分析':
                         temp_num = 1
                     data.append(temp_num)
-
                     data_sql = tuple(data)
-                    # print(file_name)
-                    # print(data.__len__())
-                    # print(data_sql)
+
                     try:
                         cursor.execute(
                             'insert into profitability(pkey, prospectusMD5, table_date, currency_unit, product_type, amount, proportion, movement, business_type, composition_type)'
                             'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data_sql)
                     except  Exception as e:
                         print(e, file_name, 10)
+                        infor = str(file_name + str(e))
+                        fp.write(infor + '\n\r')
+
             for key, value in issuer_profession['营业成本分析'].items():
                 temp = key
                 for each_one in value:
@@ -425,80 +483,94 @@ class InsertData():
                     elif temp == '主营业务成本按业务构成分析':
                         temp_num = 1
                     data.append(temp_num)
-
                     data_sql = tuple(data)
-                    # print(data.__len__())
-                    # print(data_sql)
+
                     try:
                         cursor.execute(
                             'insert into profitability(pkey, prospectusMD5, table_date, currency_unit, product_type, amount, proportion, movement, business_type, composition_type)'
                             'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data_sql)
                     except  Exception as e:
                         print(e, file_name, 11)
+                        infor = str(file_name + str(e))
+                        fp.write(infor + '\n\r')
+        fp.close()
 
     # 资产负债表
     def balance(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[10] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_balance = make_fromat(get_field_num(cursor, 'balance'))
         sql_balance = 'insert into balance values(%s)' % fromat_balance
         if dic_data['财务基本情况及财务指标'] is not None:
             for fin_basic_gen in dic_data['财务基本情况及财务指标']:
                 if isinstance(fin_basic_gen['合并资产负债表'], dict):
                     data_bala = balance(self, fin_basic_gen, prospectusMD5, file_name)
-                    # print(data_bala.__len__())
-                    # print(file_name)
-                    # print(data_bala)
 
                     try:
                         cursor.execute(sql_balance, data_bala)
                     except Exception as e:
                         print(e, file_name, 12)
+                        infor = str(file_name + str(e))
+                        fp.write(infor + '\n\r')
+        fp.close()
 
 
     # 现金流量表
     def cash_flow(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[11] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_cash_flow = make_fromat(get_field_num(cursor, 'cash_flow'))
         sql_cash_flow = 'insert into cash_flow values(%s)' % fromat_cash_flow
         if dic_data['财务基本情况及财务指标'] is not None:
             for fin_basic_gen in dic_data['财务基本情况及财务指标']:
                 if isinstance(fin_basic_gen['合并现金流量表'], dict):
                     data_cash_flow = cash_flow(self, fin_basic_gen, prospectusMD5, file_name)
-                    # print(data_cash_flow.__len__())
-                    # print(data_cash_flow)
+
                     try:
                         cursor.execute(sql_cash_flow, data_cash_flow)
                     except Exception as e:
                         print(e, file_name, 13)
+                        infor = str(file_name + str(e))
+                        fp.write(infor + '\n\r')
+        fp.close()
 
     # 利润表
     def income(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[12] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_income = make_fromat(get_field_num(cursor, 'income'))
         sql_income = 'insert into income values(%s)' % fromat_income
         if dic_data['财务基本情况及财务指标'] is not None:
             for fin_basic_gen in dic_data['财务基本情况及财务指标']:
                 if isinstance(fin_basic_gen['合并利润表'], dict):
                     data_income = income(self, fin_basic_gen, prospectusMD5, file_name)
-                    # print(file_name)
-                    # print(data_income)
+
                     try:
                         cursor.execute(sql_income ,data_income)
                     except Exception as e:
                         print(e, file_name, 14)
+                        infor = str(file_name + str(e))
+                        fp.write(infor + '\n\r')
+        fp.close()
 
     # 主要财务指标表
     def main_financial_indicators(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[13] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_main_financial_indicators = make_fromat(get_field_num(cursor, 'main_financial_indicators'))
         sql_main_financial_indicators = 'insert into main_financial_indicators values(%s)' % fromat_main_financial_indicators
         if dic_data['财务基本情况及财务指标'] is not None:
             for fin_basic_gen in dic_data['财务基本情况及财务指标']:
                 if isinstance(fin_basic_gen['基本财务指标'], dict):
                     data_fin_ind = financial_indicators(self, fin_basic_gen, prospectusMD5, file_name)
-                    # print(data_fin_ind.__len__())
-                    # print(data_fin_ind)
-                    # print(file_name)
+
                     try:
                         cursor.execute(sql_main_financial_indicators ,data_fin_ind)
                     except Exception as e:
                         print(e, file_name, 15)
+                        infor = str(file_name + str(e))
+                        fp.write(infor + '\n\r')
+        fp.close()
 
     #实际控制人情况
     def actual_controller_info(self, file_name, prospectusMD5, cursor, dic_data):
@@ -520,8 +592,7 @@ class InsertData():
                     data.insert(8, None)
                     data.insert(9, None)
                     data.insert(10,'国有控股主体')
-                    # print(data.__len__())
-                    # print(data)
+
                     try:
                         cursor.execute(sql_actual_controller_info, data)
                     except Exception as e:
@@ -539,7 +610,7 @@ class InsertData():
                     data.insert(8, None)
                     data.insert(9, None)
                     data.insert(10, '自然人')
-                    # print(data)
+
                     try:
                         cursor.execute('insert into actual_controller_info(pkey, prospectusMD5, name, principal, identity_number, '
                                        'nationality, direct_holding_ratio, indirect_holding_ratio, nature, pledged_shares, type) '
@@ -560,7 +631,7 @@ class InsertData():
                     data.insert(8, None)
                     data.insert(9, None)
                     data.insert(10, '其他')
-                    # print(data)
+
                     try:
                         cursor.execute('insert into actual_controller_info(pkey, prospectusMD5, name, nature, direct_holding_ratio,'
                                        ' indirect_holding_ratio, pledged_shares, principal, identity_number, nationality, type) '
@@ -582,7 +653,7 @@ class InsertData():
             data.append(key)
             data.append(value)
             data_sql = tuple(data)
-            # print(data_sql)
+
             try:
                 cursor.execute(sql_paraphrase, data_sql)
             except Exception as e:
@@ -594,29 +665,68 @@ class InsertData():
         sql_controlling_shareholder_info = 'insert into controlling_shareholder_info values(%s)' % fromat_controlling_shareholder_info
         if dic_data['控股股东简要情况'] is not None:
             if isinstance(dic_data['控股股东简要情况'], dict):
-                for key, value in dic_data['控股股东简要情况'].items():
+                for each_one in dic_data['控股股东简要情况'].get('法人', None):
                     data = []
-                    # pkey = str(file_name))
-                    # pkey_md5 = md5_passwd(pkey)
-                    # data.append(pkey_md5)
+                    pkey = str(file_name) + str(each_one.get('名称', None))
+                    pkey_md5 = md5_passwd(pkey)
+                    data.append(pkey_md5)
                     data.append(prospectusMD5)
-                    data.append(key)
+                    for key, value in each_one.items():
+                        data.append(value)
+                    data.insert(6, None)
+                    data.insert(7, None)
+                    data.insert(8, None)
+                    data.insert(9,'法人')
 
-                    for infor in value:
-                        for key, value in infor.items():
-                            if pandas.isnull(value):
-                                value = None
-                            data.append(value)
-                    data_sql = tuple(data)
-                # print(data_sql)
+                    try:
+                        cursor.execute(sql_controlling_shareholder_info, data)
+                    except Exception as e:
+                        print(e, file_name, 16)
 
-        try:
-            cursor.execute(sql_controlling_shareholder_info, data_sql)
-        except Exception as e:
-            print(e, file_name, 20)
+                for each_one in dic_data['控股股东简要情况'].get('自然人', None):
+                    data = []
+                    pkey = str(file_name) + str(each_one.get('姓名', None))
+                    pkey_md5 = md5_passwd(pkey)
+                    data.append(pkey_md5)
+                    data.append(prospectusMD5)
+                    for key, value in each_one.items():
+                        data.append(value)
+                    data.insert(7, None)
+                    data.insert(8, None)
+                    data.insert(9, '自然人')
+                    print(data.__len__())
+
+                    try:
+                        cursor.execute('insert into controlling_shareholder_info(pkey, prospectusMD5, name, identity_number, nationality, direct_holding_ratio, indirect_holding_ratio, nature_of_business, nature, type)'
+                                       'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data)
+                    except Exception as e:
+                        print(e, file_name, 17)
+
+
+                for each_one in dic_data['控股股东简要情况'].get('其他', None):
+                    data = []
+                    pkey = str(file_name) + str(each_one.get('名称', None))
+                    pkey_md5 = md5_passwd(pkey)
+                    data.append(pkey_md5)
+                    data.append(prospectusMD5)
+                    for key, value in each_one.items():
+                        data.append(value)
+                    data.insert(6, None)
+                    data.insert(7, None)
+                    data.insert(8, None)
+                    data.insert(9, '其他')
+                    print(data)
+
+                    try:
+                        cursor.execute('insert into controlling_shareholder_info(pkey, prospectusMD5, name, nature, direct_holding_ratio, indirect_holding_ratio, nature_of_business, identity_number, nationality, type)'
+                                       'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data)
+                    except Exception as e:
+                        print(e, file_name, 18)
 
     # 监事基本情况
     def supervisor_information(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[14] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_supervisor_information = make_fromat(get_field_num(cursor, 'supervisor_information'))
         sql_supervisor_information = 'insert into supervisor_information values(%s)' % fromat_supervisor_information
         if dic_data['控股股东简要情况'] is not None:
@@ -632,15 +742,19 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                # print(data_sql.__len__())
-                # print(data_sql)
+
                 try:
                     cursor.execute(sql_supervisor_information, data_sql)
                 except Exception as e:
                     print(e, file_name, 21)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
     # 高管基本情况
     def management_information(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[15] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_management_information = make_fromat(get_field_num(cursor, 'management_information'))
         sql_management_information = 'insert into management_information values(%s)' % fromat_management_information
         if dic_data['控股股东简要情况'] is not None:
@@ -656,15 +770,19 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                # print(data_sql.__len__())
-                # print(data_sql)
+
                 try:
                     cursor.execute(sql_management_information, data_sql)
                 except Exception as e:
                     print(e, file_name, 22)
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
 
     # 核心技术人员基本情况
     def core_technician_info(self, file_name, prospectusMD5, cursor, dic_data):
+        error_file_route = os.path.join(error_file_path, error_file_schames[16] + '.txt')
+        fp = open(error_file_route, "a", encoding='utf-8')
         fromat_core_technician_info = make_fromat(get_field_num(cursor, 'core_technician_info'))
         sql_core_technician_info = 'insert into core_technician_info values(%s)' % fromat_core_technician_info
         if dic_data['控股股东简要情况'] is not None:
@@ -680,14 +798,11 @@ class InsertData():
                             value = None
                         data.append(value)
                     data_sql = tuple(data)
-                # print(data_sql.__len__())
-                # print(data_sql)
+
                 try:
                     cursor.execute(sql_core_technician_info, data_sql)
                 except Exception as e:
                     print(e, file_name, 23)
-
-
-# if __name__ == '__main__':
-#     temp = Json_to_Data_Base()
-#     temp.json_to_data_base()
+                    infor = str(file_name + str(e))
+                    fp.write(infor + '\n\r')
+        fp.close()
