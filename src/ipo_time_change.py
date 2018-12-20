@@ -44,13 +44,17 @@ def time_change(time):
     value = time.strip()
     value = value.replace('\n', '')
 
-    # 2016.12.31
-    if re.search(r'^\d{4}\.\d{1,2}\.\d{1,2}$', value):
-        value = value.replace(".", "-")
-
     # 2020-05-09 00:00:00
     if re.search(r'^\d{4}\-\d{1,2}(\-\d{1,2})\s*\d{2}\:\d{2}\:\d{2}$', value):
         value = value.replace(" 00:00:00", "")
+        value = slice_zero_pad(value)
+
+    # 去除字符串中的空格
+    value = value.replace(' ', '')
+    # 2016.12.31
+    if re.search(r'^\d{4}\.\d{1,2}\.\d{1,2}$', value):
+        value = value.replace(".", "-")
+        value = slice_zero_pad(value)
 
     # 2016 年 12 月 31 日
     if re.search(r'^\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日$', value):
@@ -58,12 +62,14 @@ def time_change(time):
         value = value.replace("月", "-")
         value = value.replace("日", "")
         value = value.replace(" ", "")
+        value = slice_zero_pad(value)
 
     # 2016 年 4 月
     if re.search(r'^\d{4}\s*年\s*\d{1,2}\s*月$', value):
         value = value.replace("年", "-")
         value = value.replace("月", "")
         value = value.replace(" ", "")
+        value = slice_zero_pad(value)
 
     # 2018 年
     if re.search(r'^\d{4}\s*年\s*$', value):
@@ -71,39 +77,56 @@ def time_change(time):
 
     # 2017/6/7-2018/5/20
     if re.search(r'^\d{4}\/\d{1,2}\/\d{1,2}\-\d{4}\/\d{1,2}\/\d{1,2}$', value):
-        value = value.replace("-", "~")
-        value = value.replace("/", "-")
+        time_list = re.findall(r'\d{4}\/\d{1,2}\/\d{1,2}', value)
+        time_list[0] = time_list[0].replace("/", "-")
+        time_list[1] = time_list[1].replace("/", "-")
+        value_begin = slice_zero_pad(time_list[0])
+        value_end = slice_zero_pad(time_list[1])
+        value = value_begin + '~' + value_end
 
     # 2017.4.1-2020.3.31
     if re.search(r'^\d{4}\.\d{1,2}\.\d{1,2}\-\d{4}\.\d{1,2}\.\d{1,2}$', value):
-        value = value.replace("-", "~")
-        value = value.replace(".", "-")
+        time_list = re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', value)
+        time_list[0] = time_list[0].replace(".", "-")
+        time_list[1] = time_list[1].replace(".", "-")
+        value_begin = slice_zero_pad(time_list[0])
+        value_end = slice_zero_pad(time_list[1])
+        value = value_begin + '~' + value_end
 
     # 2017年6月21日至2018年6月21日 / 2015 年 1月 30 日至2024 年 10月 29 日期间发生的债权/2015 年 1 月 1 日起至 2017 年 12 月 31 日
     if re.search(r'^[\u4E00-\u9FFF]*\s*\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*[\u4E00-\u9FFF]+\s*\d{4}\s*'
                  r'年\s*\d{1,2}\s*月\s*\d{1,2}\s*[\u4E00-\u9FFF]+', value):
         time_list = re.findall(r'\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}', value)
-        value = time_list[0] + '~' + time_list[1]
-        value = value.replace("年", "-")
-        value = value.replace("月", "-")
-        value = value.replace("日", "")
-        value = value.replace(" ","")
+        time_list[0] = time_list[0].replace("年", "-")
+        time_list[0] = time_list[0].replace("月", "-")
+        time_list[0] = time_list[0].replace("日", "")
+        time_list[1] = time_list[1].replace("年", "-")
+        time_list[1] = time_list[1].replace("月", "-")
+        time_list[1] = time_list[1].replace("日", "")
+        value_begin = slice_zero_pad(time_list[0])
+        value_end = slice_zero_pad(time_list[1])
+        value = value_begin + '~' + value_end
 
     # 2018-01-01 至 2018-12-31
     if re.search(r'^\d{4}\-\d{1,2}\-\d{1,2}\s*[\u4E00-\u9FFF]+\s*\d{4}\-\d{1,2}\-\d{1,2}$', value):
         time_list = re.findall(r'\d{4}\-\d{1,2}\-\d{1,2}', value)
-        value = time_list[0] + '~' + time_list[1]
+        value_begin = slice_zero_pad(time_list[0])
+        value_end = slice_zero_pad(time_list[1])
+        value = value_begin + '~' + value_end
 
     # 2018/12/1
     if re.search(r'^\d{4}\/\d{1,2}\/\d{1,2}$', value):
         value = value.replace('/', '-')
+        value = slice_zero_pad(value)
 
     # 2016.12.16至2017.12.15
     if re.search(r'^\d{4}\.\d{1,2}\.\d{1,2}\s*[\u4E00-\u9FFF]+\s*\d{4}\.\d{1,2}\.\d{1,2}$', value):
         time_list = re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', value)
-        value = time_list[0] + '~' + time_list[1]
-        value = value.replace('.', '-')
-
+        time_list[0] = time_list[0].replace(".", "-")
+        time_list[1] = time_list[1].replace(".", "-")
+        value_begin = slice_zero_pad(time_list[0])
+        value_end = slice_zero_pad(time_list[1])
+        value = value_begin + '~' + value_end
 
     return value
 
@@ -212,6 +235,7 @@ def overseas_residency_change(dic_data):
 
     return dic_data
 
+# 专利是否存在权属纠纷
 def patent_ownership(dic_data):
     if dic_data['专利'] is not None:
         for patent in dic_data['专利']:
@@ -242,6 +266,14 @@ def gander_change(dic_data):
 
     return dic_data
 
+# 数据保留两位小数
+def num_zero_pad(value):
+    value = str(value)
+    if re.search(r'^(-?\d{1,3}(\,\d{3})*)$', value):
+        value = value + '.00'
+    if re.search(r'^(-?\d{1,3}(\,\d{3})*\.\d{1})$', value):
+        value = value + '0'
+    return value
 # 金额
 def amount_change(dic_data):
     # 基本财务指标
@@ -256,6 +288,7 @@ def amount_change(dic_data):
                             else:
                                 value_second = int(value_second)
                             amount = "{:,}".format(value_second)
+                            amount = num_zero_pad(amount)
                             value_fist[key_second] = amount
             # print(fin_basic_gen['合并资产负债表'])
 
@@ -267,6 +300,7 @@ def amount_change(dic_data):
                             else:
                                 value_one = int(value_one)
                             amount = "{:,}".format(value_one)
+                            amount = num_zero_pad(amount)
                             fin_basic_gen['合并现金流量表'][key_one] = amount
             # print(fin_basic_gen['合并现金流量表'])
 
@@ -281,6 +315,7 @@ def amount_change(dic_data):
                                 else:
                                     value_second = int(value_second)
                                 amount = "{:,}".format(value_second)
+                                amount = num_zero_pad(amount)
                                 value_fist[key_second] = amount
 
                     else:
@@ -290,6 +325,7 @@ def amount_change(dic_data):
                             else:
                                 value_fist = int(value_fist)
                             amount = "{:,}".format(value_fist)
+                            amount = num_zero_pad(amount)
                             fin_basic_gen['合并利润表'][key_fist] = amount
             # print(fin_basic_gen['合并利润表'])
 
@@ -301,6 +337,7 @@ def amount_change(dic_data):
                         else:
                             value_fist = int(value_fist)
                         amount = "{:,}".format(value_fist)
+                        amount = num_zero_pad(amount)
                         fin_basic_gen['基本财务指标'][key_fist] = amount
 
                 # print(fin_basic_gen['基本财务指标'])
@@ -321,6 +358,7 @@ def amount_change(dic_data):
                                             else:
                                                 value_third = int(value_third)
                                             amount = "{:,}".format(value_third)
+                                            amount = num_zero_pad(amount)
                                             echo_amount[key_third] = amount
         # print(dic_data['盈利能力'])
 
@@ -336,6 +374,7 @@ def amount_change(dic_data):
                             else:
                                 value_first = int(value_first)
                             amount = "{:,}".format(value_first)
+                            amount = num_zero_pad(amount)
                             major_contract[key_first] = amount
         # print(dic_data['重大合同'])
 
@@ -351,6 +390,7 @@ def amount_change(dic_data):
                             else:
                                 value_first = int(value_first)
                             amount = "{:,}".format(value_first)
+                            amount = num_zero_pad(amount)
                             major_supplier[key_first] = amount
         # print(dic_data['主要供应商'])
 
@@ -366,6 +406,7 @@ def amount_change(dic_data):
                             else:
                                 value_first = int(value_first)
                             amount = "{:,}".format(value_first)
+                            amount = num_zero_pad(amount)
                             major_client[key_first] = amount
         # print(dic_data['主要客户'])
 
@@ -380,6 +421,7 @@ def amount_change(dic_data):
                         else:
                             value_first = int(value_first)
                         amount = "{:,}".format(value_first)
+                        amount = num_zero_pad(amount)
                         fund_raising[key_first] = amount
         # print(dic_data['募集资金与运用'])
 
@@ -394,6 +436,7 @@ def amount_change(dic_data):
                         else:
                             value_first = int(value_first)
                         amount = "{:,}".format(value_first)
+                        amount = num_zero_pad(amount)
                         major_lawsuit[key_first] = amount
         # print(dic_data['重大诉讼事项'])
 
@@ -418,6 +461,7 @@ def amount_change(dic_data):
                     else:
                         book_value = int(book_value)
                     book_value = "{:,}".format(book_value)
+                    book_value = num_zero_pad(book_value)
                     major_lawsuit['最近一期末账面价值'] = book_value
     #     # print(dic_data['专利'])
 
@@ -445,16 +489,16 @@ class FormatChange():
             # dic_data = gander_change(dic_data)
 
             # 金额
-            # dic_data = amount_change(dic_data)
+            dic_data = amount_change(dic_data)
 
-            # print(dic_data['财务基本情况及财务指标'])
+            print(dic_data['财务基本情况及财务指标'])
 
 
             json_data = json.dumps(dic_data, ensure_ascii=False).replace(" NaN", '"无"')
             # print(json_data)
-            file_path_changed = os.path.join(json_file_changed, json_file)
-            with open(file_path_changed, 'w', encoding='utf-8') as n_file:
-                n_file.write(json_data)
+            # file_path_changed = os.path.join(json_file_changed, json_file)
+            # with open(file_path_changed, 'w', encoding='utf-8') as n_file:
+            #     n_file.write(json_data)
 
 
 if __name__ == '__main__':
