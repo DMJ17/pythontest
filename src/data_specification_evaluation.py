@@ -174,9 +174,9 @@ class Data_Evaluation():
     def data_evaluation(self):
         db = pymysql.connect(db="ipo_data_v2", user="root", password="root", host="127.0.0.1", port=3306)
         cursor = db.cursor()
-        # # 时间效验合格率
-        # time_rate = time_evaluation(cursor)
-        # print('时间效验合格率：',time_rate)
+        # 时间效验合格率
+        time_rate = time_evaluation(cursor)
+        print('时间效验合格率：',time_rate)
 
         # # 学历效验合格率
         # education_rate = education_evaluation(cursor)
@@ -194,9 +194,9 @@ class Data_Evaluation():
         # industry_name_rate = industry_code_evaluation(cursor)
         # print('行业分类名称：', industry_name_rate)
 
-        # 企业性质
-        nature_business_rate = nature_business_evaluation(cursor)
-        print('企业性质：', nature_business_rate)
+        # # 企业性质
+        # nature_business_rate = nature_business_evaluation(cursor)
+        # print('企业性质：', nature_business_rate)
 
         # 国籍
 
