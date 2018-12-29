@@ -29,6 +29,8 @@ job_title_list = ['工程师', '会计师', '高级工程师', '教授', '高级
     "t15": "2016 年 1 月 1 日至2017 年 12 月 31 日，协议期满前 30 日内双方如无异议，可自动延期 1 年，顺延次数不限",
     "t16": "合同有效期为 2016 年 1 月 1 日至 2016 年 12 月31 日。《商品合同》约定，任何一方有权在前述合同期限届满至少提前一个月书面通知另一方 于前述期限届满时终止本《商合， 使前述终止权，则本《商品合同》将视为已经由双方默认为无限期续订而有效并对双方具有约束力，在续订期内，任何一方有权提前一个月书面通知另一方以终止本《商品合同》",
 """
+
+
 # 时间切片，补零
 def slice_zero_pad(value):
     if re.search(r'^\d{4}\-\d{1}$', value):
@@ -47,113 +49,157 @@ def slice_zero_pad(value):
 
 # 有待优化，不必要所有的判断都得执行
 def time_change(time):
-    time = str(time)
-    value = time.strip()
-    value = value.replace('\n', '')
-    # 去除字符串中的空格
-    value = value.replace(' ', '')
+    if time is not None:
+        time = str(time)
+        value = time.strip()
+        value = value.replace('\n', '')
+        # 去除字符串中的空格
+        value = value.replace(' ', '')
 
-    # 2020-05-09 00:00:00
-    if re.search(r'^\d{4}\-\d{1,2}(\-\d{1,2})\s*\d{2}\:\d{2}\:\d{2}$', value):
-        value = value.replace("00:00:00", "")
-        value = slice_zero_pad(value)
+        # 2020-05-09 00:00:00
+        if re.search(r'^\d{4}\-\d{1,2}(\-\d{1,2})\s*\d{2}\:\d{2}\:\d{2}$', value):
+            value = value.replace("00:00:00", "")
+            value = slice_zero_pad(value)
 
-    # 2018-1-17（在原格式上添零）
-    if re.search(r'^\d{4}\-\d{1,2}(\-\d{1,2})$', value) or re.search(r'^\d{4}\-\d{1,2}$', value):
-        value = slice_zero_pad(value)
+        # 2018-1-17（在原格式上添零）
+        if re.search(r'^\d{4}\-\d{1,2}(\-\d{1,2})$', value) or re.search(r'^\d{4}\-\d{1,2}$', value):
+            value = slice_zero_pad(value)
 
-    # 2016.12.31
-    if re.search(r'^\d{4}\.\d{1,2}\.\d{1,2}$', value):
-        value = value.replace(".", "-")
-        value = slice_zero_pad(value)
+        # 2016.12.31
+        if re.search(r'^\d{4}\.\d{1,2}\.\d{1,2}$', value):
+            value = value.replace(".", "-")
+            value = slice_zero_pad(value)
 
-    # 2016 年 12 月 31 日
-    if re.search(r'^\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*[\u4E00-\u9FFF]*$', value):
-        value = value.replace("年", "-")
-        value = value.replace("月", "-")
-        value = value.replace("日", "")
-        value = value.replace(" ", "")
-        value = slice_zero_pad(value)
+        # 2016 年 12 月 31 日
+        if re.search(r'^\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*[\u4E00-\u9FFF]*$', value):
+            value = value.replace("年", "-")
+            value = value.replace("月", "-")
+            value = value.replace("日", "")
+            value = value.replace(" ", "")
+            value = slice_zero_pad(value)
 
-    # 2016 年 4 月
-    if re.search(r'^\d{4}\s*年\s*\d{1,2}\s*[\u4E00-\u9FFF]*$', value):
-        value = value.replace("年", "-")
-        value = value.replace("月", "")
-        value = value.replace(" ", "")
-        value = slice_zero_pad(value)
+        # 2016 年 4 月
+        if re.search(r'^\d{4}\s*年\s*\d{1,2}\s*[\u4E00-\u9FFF]*$', value):
+            value = value.replace("年", "-")
+            value = value.replace("月", "")
+            value = value.replace(" ", "")
+            value = slice_zero_pad(value)
 
-    # 2018 年
-    if re.search(r'^\d{4}\s*[\u4E00-\u9FFF]+\s*$', value):
-        value = value.replace("年", "")
+        # 2018 年
+        if re.search(r'^\d{4}\s*[\u4E00-\u9FFF]+\s*$', value):
+            value = re.findall(r'^\d{4}', value)
+            if value.__len__() == 1:
+                value = value[0]
 
-    # 2017/6/7-2018/5/20
-    if re.search(r'^\d{4}\/\d{1,2}\/\d{1,2}\-\d{4}\/\d{1,2}\/\d{1,2}$', value):
-        time_list = re.findall(r'\d{4}\/\d{1,2}\/\d{1,2}', value)
-        time_list[0] = time_list[0].replace("/", "-")
-        time_list[1] = time_list[1].replace("/", "-")
-        value_begin = slice_zero_pad(time_list[0])
-        value_end = slice_zero_pad(time_list[1])
-        value = value_begin + '~' + value_end
-
-    # 2017.4.1-2020.3.31
-    if re.search(r'^[\u4E00-\u9FFF]*\d{4}\.\d{1,2}\.\d{1,2}\-\d{4}\.\d{1,2}\.\d{1,2}[\u4E00-\u9FFF]*', value):
-        time_list = re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', value)
-        time_list[0] = time_list[0].replace(".", "-")
-        time_list[1] = time_list[1].replace(".", "-")
-        value_begin = slice_zero_pad(time_list[0])
-        value_end = slice_zero_pad(time_list[1])
-        value = value_begin + '~' + value_end
-
-    # 2017年6月21日至2018年6月21日 / 2015 年 1月 30 日至2024 年 10月 29 日期间发生的债权/2015 年 1 月 1 日起至 2017 年 12 月 31 日
-    if re.search(r'^[\u4E00-\u9FFF]*\s*\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*[\u4E00-\u9FFF]+\s*\d{4}\s*'
-                 r'年\s*\d{1,2}\s*月\s*\d{1,2}\s*[\u4E00-\u9FFF]+', value):
-        time_list = re.findall(r'\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}', value)
-        time_list[0] = time_list[0].replace("年", "-")
-        time_list[0] = time_list[0].replace("月", "-")
-        time_list[0] = time_list[0].replace("日", "")
-        time_list[1] = time_list[1].replace("年", "-")
-        time_list[1] = time_list[1].replace("月", "-")
-        time_list[1] = time_list[1].replace("日", "")
-        value_begin = slice_zero_pad(time_list[0])
-        value_end = slice_zero_pad(time_list[1])
-        value = value_begin + '~' + value_end
-
-    # 2018-01-01 至 2018-12-31
-    if re.search(r'^\d{4}\-\d{1,2}\-\d{1,2}\s*[\u4E00-\u9FFF]+\s*\d{4}\-\d{1,2}\-\d{1,2}$', value):
-        time_list = re.findall(r'\d{4}\-\d{1,2}\-\d{1,2}', value)
-        value_begin = slice_zero_pad(time_list[0])
-        value_end = slice_zero_pad(time_list[1])
-        value = value_begin + '~' + value_end
-
-    # 2018/12/1
-    if re.search(r'^\d{4}\/\d{1,2}\/\d{1,2}$', value):
-        value = value.replace('/', '-')
-        value = slice_zero_pad(value)
-
-    # 2016.12.16至2017.12.15
-    if re.search(r'^[\u4E00-\u9FFF]*\d{4}\.\d{1,2}\.\d{1,2}\s*[\u4E00-\u9FFF]+\s*\d{4}\.\d{1,2}\.\d{1,2}[\u4E00-\u9FFF]*$',value):
-        time_list = re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', value)
-        time_list[0] = time_list[0].replace(".", "-")
-        time_list[1] = time_list[1].replace(".", "-")
-        value_begin = slice_zero_pad(time_list[0])
-        value_end = slice_zero_pad(time_list[1])
-        value = value_begin + '~' + value_end
-
-    # 2017年1-6月/"t33": "2017年11-6月","t34": "2017年1-36月","t34": "2017年11-36月",
-    if re.search(r'^\d{4}\s*年\d{1,2}\-\d{1,2}[\u4E00-\u9FFF]*$', value):
-        time_list = re.findall(r'\d{1,2}', value)
-        if time_list.__len__() == 4:
-            # print(time_list)
-            value_begin = slice_zero_pad(time_list[0] + time_list[1] + '-' + time_list[2])
-            value_end = slice_zero_pad(time_list[0] + time_list[1] + '-' + time_list[3])
+        # 2017/6/7-2018/5/20
+        if re.search(r'^\d{4}\/\d{1,2}\/\d{1,2}\-\d{4}\/\d{1,2}\/\d{1,2}$', value) or re.search(r'^\d{4}\/\d{1,2}\/\d{1,2}\—\d{4}\/\d{1,2}\/\d{1,2}$', value):
+            time_list = re.findall(r'\d{4}\/\d{1,2}\/\d{1,2}', value)
+            time_list[0] = time_list[0].replace("/", "-")
+            time_list[1] = time_list[1].replace("/", "-")
+            value_begin = slice_zero_pad(time_list[0])
+            value_end = slice_zero_pad(time_list[1])
             value = value_begin + '~' + value_end
 
-    # 2017.1
-    if re.search(r'^\d{4}\.\d{1,2}$', value):
-        value = value.replace(".", "-")
-        value = slice_zero_pad(value)
+        # 2017.4.1-2020.3.31
+        if re.search(r'^\d{4}\.\d{1,2}\.\d{1,2}\-\d{4}\.\d{1,2}\.\d{1,2}[\u4E00-\u9FFF]*', value) or re.search(r'^\d{4}\.\d{1,2}\.\d{1,2}\—\d{4}\.\d{1,2}\.\d{1,2}[\u4E00-\u9FFF]*', value):
+            time_list = re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', value)
+            time_list[0] = time_list[0].replace(".", "-")
+            time_list[1] = time_list[1].replace(".", "-")
+            value_begin = slice_zero_pad(time_list[0])
+            value_end = slice_zero_pad(time_list[1])
+            value = value_begin + '~' + value_end
 
-    return value
+        # 2017年6月21日至2018年6月21日 / 2015 年 1月 30 日至2024 年 10月 29 日期间发生的债权/2015 年 1 月 1 日起至 2017 年 12 月 31 日
+        if re.search(r'^[\u4E00-\u9FFF]*\s*\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*[\u4E00-\u9FFF]*(\-)*\s*\d{4}\s*'
+                     r'年\s*\d{1,2}\s*月\s*\d{1,2}\s*[\u4E00-\u9FFF]+', value):
+            time_list = re.findall(r'\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}', value)
+            if time_list.__len__() == 2:
+                time_list[0] = time_list[0].replace("年", "-")
+                time_list[0] = time_list[0].replace("月", "-")
+                time_list[0] = time_list[0].replace("日", "")
+                time_list[1] = time_list[1].replace("年", "-")
+                time_list[1] = time_list[1].replace("月", "-")
+                time_list[1] = time_list[1].replace("日", "")
+                value_begin = slice_zero_pad(time_list[0])
+                value_end = slice_zero_pad(time_list[1])
+                value = value_begin + '~' + value_end
+
+        # 2018-01-01 至 2018-12-31
+        if re.search(r'^\d{4}\-\d{1,2}\-\d{1,2}\s*[\u4E00-\u9FFF]+\s*\d{4}\-\d{1,2}\-\d{1,2}$', value):
+            time_list = re.findall(r'\d{4}\-\d{1,2}\-\d{1,2}', value)
+            value_begin = slice_zero_pad(time_list[0])
+            value_end = slice_zero_pad(time_list[1])
+            value = value_begin + '~' + value_end
+
+        # 2018/12/1
+        if re.search(r'^\d{4}\/\d{1,2}\/\d{1,2}$', value):
+            value = value.replace('/', '-')
+            value = slice_zero_pad(value)
+
+        # 2016.12.16至2017.12.15
+        if re.search(r'^[\u4E00-\u9FFF]*\d{4}\.\d{1,2}\.\d{1,2}\s*[\u4E00-\u9FFF]+\s*\d{4}\.\d{1,2}\.\d{1,2}[\u4E00-\u9FFF]*$',value):
+            time_list = re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', value)
+            time_list[0] = time_list[0].replace(".", "-")
+            time_list[1] = time_list[1].replace(".", "-")
+            value_begin = slice_zero_pad(time_list[0])
+            value_end = slice_zero_pad(time_list[1])
+            value = value_begin + '~' + value_end
+
+        # 2017年1-6月/"t33": "2017年11-6月","t34": "2017年1-36月","t34": "2017年11-36月",
+        if re.search(r'^\d{4}\s*[\u4E00-\u9FFF]{1,2}\d{1,2}(\-){1,2}\d{1,2}[\u4E00-\u9FFF]*$', value) or re.search(
+                r'^\d{4}\s*[\u4E00-\u9FFF]{1,2}\d{1,2}(\—){1,2}\d{1,2}[\u4E00-\u9FFF]*$', value):
+            time_list = re.findall(r'\d{1,2}', value)
+            if time_list.__len__() == 4:
+                # print(time_list)
+                value_begin = slice_zero_pad(time_list[0] + time_list[1] + '-' + time_list[2])
+                value_end = slice_zero_pad(time_list[0] + time_list[1] + '-' + time_list[3])
+                value = value_begin + '~' + value_end
+
+        # 2017.1
+        if re.search(r'^\d{4}\.\d{1,2}$', value):
+            value = value.replace(".", "-")
+            value = slice_zero_pad(value)
+
+        #   2017/8/31至2018/8/30
+        if re.search(r'^\d{4}\/\d{1,2}\/\d{1,2}\s*[\u4E00-\u9FFF]+\s*\d{4}\/\d{1,2}\/\d{1,2}$', value):
+            time_list = re.findall(r'\d{4}\/\d{1,2}\/\d{1,2}', value)
+            time_list[0] = time_list[0].replace("/", "-")
+            time_list[1] = time_list[1].replace("/", "-")
+            value_begin = slice_zero_pad(time_list[0])
+            value_end = slice_zero_pad(time_list[1])
+            value = value_begin + '~' + value_end
+
+        # "t46": "2017.10-2037.9",
+        if re.search(r'^\d{4}\.\d{1,2}\-\d{4}\.\d{1,2}[\u4E00-\u9FFF]*', value):
+            time_list = re.findall(r'\d{4}\.\d{1,2}', value)
+            time_list[0] = time_list[0].replace(".", "-")
+            time_list[1] = time_list[1].replace(".", "-")
+            value_begin = slice_zero_pad(time_list[0])
+            value_end = slice_zero_pad(time_list[1])
+            value = value_begin + '~' + value_end
+
+        # 2015年（各期聚乙烯）
+        # 2015年（应收账款）
+        if re.search(r'^\d{4}\s*[\u4E00-\u9FFF]{1,2}(\（)+[\u4E00-\u9FFF]+(\）)+\s*$', value):
+            value = re.findall(r'^\d{4}', value)
+            if value.__len__() == 1:
+                value = value[0]
+
+        # 2017/4-2018/4
+        if re.search(r'^\d{4}\/\d{1,2}\-\d{4}\/\d{1,2}$', value):
+            time_list = re.findall(r'\d{4}\/\d{1,2}', value)
+            time_list[0] = time_list[0].replace("/", "-")
+            time_list[1] = time_list[1].replace("/", "-")
+            value_begin = slice_zero_pad(time_list[0])
+            value_end = slice_zero_pad(time_list[1])
+            value = value_begin + '~' + value_end
+
+        # 2017-2018
+        if re.search(r'^\d{4}\-\d{4}$', value):
+            value = value.replace('-','~')
+
+        # value = data_blanking(value)
+        return value
 
 # 董监高时间格式规整
 def time_person_change(dic_data):
@@ -197,9 +243,6 @@ def time_change_common(dic_data, fist_floor, second_floor):
 
 # 时间格式修改合并调用
 def json_time_change(dic_data):
-    count = {}
-    count['评估数量'] = 0
-    count['效验合格数量'] = 0
     # 董监高
     dic_data = time_person_change(dic_data)
     # 发行人相关信息
@@ -276,34 +319,35 @@ def patent_ownership(dic_data):
 
 # 学历规范化函数
 def education_change(value):
-    value = value.replace(' ', '')
-    if value.find('初中') != -1:
-        value = "初中"
-    if value.find('高中') != -1:
-        value = "高中"
-    if value.find('中专') != -1:
-        value = "中专"
-    if value.find('大专') != -1:
-        value = "大专"
-    if value.find('专科') != -1:
-        value = "专科"
-    if value.find('学士') != -1 or value.find('本科') != -1 or value.find('大学') != -1:
-        value = "本科"
-    if value.find('硕士') != -1 or value.find('研究生') != -1:
-        value = "硕士"
-    if value.find('博士') != -1 and value.find('博士后') == -1:
-        value = "博士"
-    if value.find('博士后') != -1:
-        value = "博士后"
-    if value.find('EMBA') != -1:
-        value = "EMBA"
-    if value.find('MBA') != -1:
-        value = "MBA"
-    if value.find('MPAcc') != -1:
-        value = "MPAcc"
-    if value is not None and value != '' and value != '无' and value != '-' and value not in (
-            '本科', '硕士', '大专', '博士', '高中', '中专', '初中', 'EMBA', 'MBA', 'MPAcc', '博士后', '其他', '研究生', '博士研究生', '专科'):
-        value = '其它'
+    if value is not None:
+        value = value.replace(' ', '')
+        if value.find('初中') != -1:
+            value = "初中"
+        if value.find('高中') != -1:
+            value = "高中"
+        if value.find('中专') != -1:
+            value = "中专"
+        if value.find('大专') != -1:
+            value = "大专"
+        if value.find('专科') != -1:
+            value = "专科"
+        if value.find('学士') != -1 or value.find('本科') != -1 or value.find('大学') != -1:
+            value = "本科"
+        if value.find('硕士') != -1 or value.find('研究生') != -1:
+            value = "硕士"
+        if value.find('博士') != -1 and value.find('博士后') == -1:
+            value = "博士"
+        if value.find('博士后') != -1:
+            value = "博士后"
+        if value.find('EMBA') != -1:
+            value = "EMBA"
+        if value.find('MBA') != -1:
+            value = "MBA"
+        if value.find('MPAcc') != -1:
+            value = "MPAcc"
+        if value is not None and value != '' and value != '无' and value != '-' and value not in (
+                '本科', '硕士', '大专', '博士', '高中', '中专', '初中', 'EMBA', 'MBA', 'MPAcc', '博士后', '其他', '研究生', '博士研究生', '专科'):
+            value = '其它'
 
     return value
 
@@ -312,22 +356,26 @@ def education_change(value):
 def gander_education_change(dic_data):
     if dic_data['监事基本情况'] is not None:
         for sup_infor in dic_data['监事基本情况']:
-            sup_infor['性别'] = sup_infor['性别'].strip()
+            if sup_infor['性别'] is not None:
+                sup_infor['性别'] = sup_infor['性别'].strip()
             sup_infor['学历'] = education_change(sup_infor['学历'])
 
     if dic_data['董事基本情况'] is not None:
         for dir_infor in dic_data['董事基本情况']:
-            dir_infor['性别'] = dir_infor['性别'].strip()
+            if dir_infor['性别'] is not None:
+                dir_infor['性别'] = dir_infor['性别'].strip()
             dir_infor['学历'] = education_change(dir_infor['学历'])
 
     if dic_data['高管基本情况'] is not None:
         for man_infor in dic_data['高管基本情况']:
-            man_infor['性别'] = man_infor['性别'].strip()
+            if man_infor['性别'] is not None:
+                man_infor['性别'] = man_infor['性别'].strip()
             man_infor['学历'] = education_change(man_infor['学历'])
 
     if dic_data['核心技术人员基本情况'] is not None:
         for core_tec_infor in dic_data['核心技术人员基本情况']:
-            core_tec_infor['性别'] = core_tec_infor['性别'].strip()
+            if core_tec_infor['性别'] is not None:
+                core_tec_infor['性别'] = core_tec_infor['性别'].strip()
             core_tec_infor['学历'] = education_change(core_tec_infor['学历'])
 
     return dic_data
@@ -339,7 +387,32 @@ def num_zero_pad(value):
         value = value + '.00'
     if re.search(r'^(-?\d{1,3}(\,\d{3})*\.\d{1})$', value):
         value = value + '0'
+    if re.search(r'^(-?\d{1,3}(\,\d{3})*\.\d{3,})$', value):
+        value = re.findall(r'^(-?\d{1,3}(\,\d{3})*\.\d{2})', value)
+        if value.__len__() == 1:
+            value = value[0][0]
+        # print(value)
     return value
+
+# 百分比处理
+def percentage_process(value):
+    value = str(value)
+    if re.search(r'^(-?(\d)+(\.(\d)+)*)$', value):
+        if re.search(r'^(-?(\d)+)$', value):
+            value = value + '.00%'
+        if re.search(r'(-?(\d)+(\.\d{1}))$', value):
+            value = value + '0%'
+        if re.search(r'(-?(\d)+(\.\d{2}))$', value):
+            value = value + '%'
+        if re.search(r'(-?(\d)+(\.\d{3,}))$', value):
+            value = re.findall(r'(-?\d+\.\d{2})', value)
+            if value.__len__() == 1:
+                value = value[0] + "%"
+    else:
+        value = None
+
+    return value
+
 # 金额
 def amount_change(dic_data):
     # 基本财务指标
@@ -441,6 +514,7 @@ def amount_change(dic_data):
                                 value_first = int(value_first)
                             amount = "{:,}".format(value_first)
                             amount = num_zero_pad(amount)
+
                             major_contract[key_first] = amount
         # print(dic_data['重大合同'])
 
@@ -540,13 +614,14 @@ suitability：所需匹配度
 """
 def string_matching(value, string_list, suitability):
         sim_last = 0
-        for string_each in string_list:
-            sim_lev = Levenshtein.ratio(value, string_each)
-            if sim_lev > sim_last:
-                string_last = string_each
-                sim_last = sim_lev
-        if sim_last > suitability:
-            value = string_last
+        if value is not None:
+            for string_each in string_list:
+                sim_lev = Levenshtein.ratio(value, string_each)
+                if sim_lev > sim_last:
+                    string_last = string_each
+                    sim_last = sim_lev
+            if sim_last > suitability:
+                value = string_last
 
         return value
 
@@ -578,11 +653,11 @@ def nationality(value):
     #     if value not in nationality_list and value != '无' and value is not None and value != '-':
     #         value = '其它'
 
-
-    value = value.replace(' ', '')
-    value = string_matching(value, nationality_list, 0.6)
-    if value not in nationality_list and value != '无' and value is not None and value != '-':
-        value = '其它'
+    if value is not None:
+        value = value.replace(' ', '')
+        value = string_matching(value, nationality_list, 0.6)
+        if value not in nationality_list and value != '无' and value is not None and value != '-':
+            value = '其它'
 
     return value
 
@@ -642,47 +717,49 @@ def industry_code_change(dic_data):
             if isinstance(issuer_profession, dict):
                 for key, value in issuer_profession.items():
                     if key == '行业分类代码':
-                        issuer_profession[key] = value.replace(' ', '').upper()
+                        if value is not None:
+                            issuer_profession[key] = value.replace(' ', '').upper()
 
     return dic_data
 
 # 行业分类标准规整函数
 def industry_standard(value):
-    value = value.replace(' ', '')
-    if re.search(r'公司行业分类指引', value) and re.search(r'2012', value):
-        value = '《上市行业分类指引》（2012年修订）'
-    elif re.search(r'公司行业分类指引', value):
-        value = '《上市行业分类指引》'
-    elif re.search(r'国民经济行业分类', value) and re.search(r'2002', value):
-        value = '《国民经济行业分类》（GB/T4754-2002）'
-    elif re.search(r'国民经济行业分类', value) and re.search(r'2011', value):
-        value = '《国民经济行业分类》（GB/T4754-2017）'
-    elif re.search(r'国民经济行业分类', value) and re.search(r'201', value):
-        value = '《国民经济行业分类》（GB/T4754-2017）'
-    elif re.search(r'国民经济行业分类', value):
-        value = '《国民经济行业分类》'
-    elif re.search(r'战略性新兴产业重点产品和服务指导目录', value):
-        value = '《战略性新兴产业重点产品和服务指导目录（2016版）》'
-    elif re.search(r'高收缩涤纶牵伸丝', value) and re.search(r'2014', value):
-        value = '《高收缩涤纶牵伸丝Q/320582LJT5-2014》'
-    elif re.search(r'文化及相关产业分类', value) and re.search(r'2018', value):
-        value = '《文化及相关产业分类（2018）》'
-    elif re.search(r'北京市文化创意产业分类', value):
-        value = '《北京市文化创意产业分类标准》'
-    elif re.search(r'文化及相关产业分类', value) and re.search(r'2012', value):
-        value = '国家统计局发布的《文化及相关产业分类（2012）》'
-    elif re.search(r'仿生涤纶异形牵伸丝', value) and re.search(r'2016', value):
-        value = '《仿生涤纶异形牵伸丝Q/320582LJT7-2016》'
-    elif re.search(r'产业结构调整指导', value) and re.search(r'2011', value):
-        value = '《产业结构调整指导目录（2011年本）》'
-    elif re.search(r'非金融机构支付服务管理办法', value):
-        value = '《非金融机构支付服务管理办法》'
-    elif re.search(r'挂牌管理型行业分类', value):
-        value = '《挂牌管理型行业分类指引》'
-    elif re.search(r'战略性新兴产业重点产品和服务指导', value) and re.search(r'2016', value):
-        value = '《战略性新兴产业重点产品和服务指导目录》（2016年版）'
-    elif value is not None and value != '无' and value != '未披露' and value != '':
-        value = '其他'
+    if value is not None:
+        value = value.replace(' ', '')
+        if re.search(r'公司行业分类指引', value) and re.search(r'2012', value):
+            value = '《上市行业分类指引》（2012年修订）'
+        elif re.search(r'公司行业分类指引', value):
+            value = '《上市行业分类指引》'
+        elif re.search(r'国民经济行业分类', value) and re.search(r'2002', value):
+            value = '《国民经济行业分类》（GB/T4754-2002）'
+        elif re.search(r'国民经济行业分类', value) and re.search(r'2011', value):
+            value = '《国民经济行业分类》（GB/T4754-2017）'
+        elif re.search(r'国民经济行业分类', value) and re.search(r'201', value):
+            value = '《国民经济行业分类》（GB/T4754-2017）'
+        elif re.search(r'国民经济行业分类', value):
+            value = '《国民经济行业分类》'
+        elif re.search(r'战略性新兴产业重点产品和服务指导目录', value):
+            value = '《战略性新兴产业重点产品和服务指导目录（2016版）》'
+        elif re.search(r'高收缩涤纶牵伸丝', value) and re.search(r'2014', value):
+            value = '《高收缩涤纶牵伸丝Q/320582LJT5-2014》'
+        elif re.search(r'文化及相关产业分类', value) and re.search(r'2018', value):
+            value = '《文化及相关产业分类（2018）》'
+        elif re.search(r'北京市文化创意产业分类', value):
+            value = '《北京市文化创意产业分类标准》'
+        elif re.search(r'文化及相关产业分类', value) and re.search(r'2012', value):
+            value = '国家统计局发布的《文化及相关产业分类（2012）》'
+        elif re.search(r'仿生涤纶异形牵伸丝', value) and re.search(r'2016', value):
+            value = '《仿生涤纶异形牵伸丝Q/320582LJT7-2016》'
+        elif re.search(r'产业结构调整指导', value) and re.search(r'2011', value):
+            value = '《产业结构调整指导目录（2011年本）》'
+        elif re.search(r'非金融机构支付服务管理办法', value):
+            value = '《非金融机构支付服务管理办法》'
+        elif re.search(r'挂牌管理型行业分类', value):
+            value = '《挂牌管理型行业分类指引》'
+        elif re.search(r'战略性新兴产业重点产品和服务指导', value) and re.search(r'2016', value):
+            value = '《战略性新兴产业重点产品和服务指导目录》（2016年版）'
+        elif value is not None and value != '无' and value != '未披露' and value != '':
+            value = '其他'
 
     return value
 
@@ -751,9 +828,11 @@ class FormatChange():
             dic_data = industry_name_change(dic_data)
             # 诉讼类型
             dic_data = lawsuit_change(dic_data)
+            # 百分比处理
+            dic_data
 
 
-            # print(dic_data['发行人所处行业'])
+            # print(dic_data['主要客户'])
             # print(dic_data['财务基本情况及财务指标'])
 
 
