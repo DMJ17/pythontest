@@ -2,7 +2,8 @@ import os
 import os.path
 import pandas
 import hashlib
-data_file_path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v3\json_final'
+# data_file_path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v3\json_final'
+data_file_path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\\time_change'
 error_file_path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v2\error'
 error_file_schames = (
     '董事基本情况',
@@ -147,16 +148,20 @@ def make_fromat(num):
 
 # 获取字段数
 def get_field_num(cursor, table_name):
-    sql = 'select COLUMN_NAME from information_schema.COLUMNS where table_name = "%s" and table_schema = "ipo_data_v2"' % table_name
+    sql = 'select COLUMN_NAME from information_schema.COLUMNS where table_name = "%s" and table_schema = "ipo_data_v2"'\
+          % table_name
+    # sql = 'select COLUMN_NAME from information_schema.COLUMNS where table_name = "%s" and table_schema = "ipo_data_from_json"'\
+    #       % table_name
+
     cursor.execute(sql)
     field = cursor.fetchall()
     num = field.__len__()
     return num
 
 
-class InsertData(object):
+class InsertData():
     # 公司字典
-    def file(self,cursor):
+    def file(self, cursor):
         # 获取所有文件名，生成公司名对应的md5，一次生成使用，除非公司名做出改变
         # path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v3\json_final'
         files = os.listdir(data_file_path)
@@ -178,7 +183,7 @@ class InsertData(object):
         fp = open(error_file_route, "a", encoding='utf-8')
         fromat_director_information = make_fromat(get_field_num(cursor, 'director_information'))
         sql_director_information = 'insert into director_information values(%s)' % fromat_director_information
-        if dic_data['控股股东简要情况'] is not None:
+        if dic_data['董事基本情况'] is not None:
             for person_infor in dic_data['董事基本情况']:
                 data = []
                 pkey = str(file_name) + str(person_infor['姓名']) + str(person_infor['出生年月'])
@@ -210,17 +215,22 @@ class InsertData(object):
         if dic_data['重大诉讼事项'] is not None:
             for major_lawsuit in dic_data['重大诉讼事项']:
                 data = []
-                pkey = str(file_name) + str(major_lawsuit['起诉(申请)方']) + str(major_lawsuit['应诉（被申请）方'])
+                pkey = str(file_name) + str(major_lawsuit['起诉(申请)方']) + str(major_lawsuit['应诉(被申请)方'])
                 pkey_md5 = md5_passwd(pkey)
                 data.append(pkey_md5)
                 data.append(prospectusMD5)
-                data.append(None)
                 if isinstance(major_lawsuit, dict):
                     for key, value in major_lawsuit.items():
                         if pandas.isnull(value):
                             value = None
                         data.append(value)
-                    data_sql = tuple(data)
+                    # if data.__len__() == 10:
+                    #     data.insert(2, data[9])
+                    #     data.pop()
+                    #     data_sql = tuple(data)
+                    # else:
+                    #     print(data)
+                data_sql = tuple(data)
 
                 try:
                     cursor.execute(sql_major_lawsuit, data_sql)
@@ -254,7 +264,6 @@ class InsertData(object):
                     cursor.execute(sql_fund_raising, data_sql)
                 except Exception as e:
                     print(e, file_name, 3)
-                    print(e, file_name, 2)
                     infor = str(file_name + str(e))
                     fp.write(infor + '\n\r')
         fp.close()
@@ -269,7 +278,7 @@ class InsertData(object):
             for patent in dic_data['专利']:
                 data = []
                 pkey = str(file_name) + str(patent['专利号'])
-                print(str(patent['专利号']))
+                # print(str(patent['专利号']))
                 pkey_md5 = md5_passwd(pkey)
                 data.append(pkey_md5)
                 data.append(prospectusMD5)
@@ -323,7 +332,7 @@ class InsertData(object):
         if dic_data['主要客户'] is not None:
             for major_client in dic_data['主要客户']:
                 data = []
-                pkey = str(file_name) + str(major_client['客户名称']) + str(major_client['下属单位名称（如细分到分公司、子公司、下属单位则填写，如未细分则填“未披露”）']) + str(major_client['时间'])
+                pkey = str(file_name) + str(major_client['客户名称']) + str(major_client['下属单位名称']) + str(major_client['时间'])
                 pkey_md5 = md5_passwd(pkey)
                 data.append(pkey_md5)
                 data.append(prospectusMD5)
@@ -332,8 +341,12 @@ class InsertData(object):
                         if pandas.isnull(value):
                             value = None
                         data.append(value)
-                    data.insert(3, None)
+                    # temp = data[8]
+                    # data[8] = data[7]
+                    # data[7] = data[6]
+                    # data[6] = temp
                     data_sql = tuple(data)
+                    # print(data_sql)
 
                 try:
                     cursor.execute(sql_major_client, data_sql)
@@ -361,8 +374,8 @@ class InsertData(object):
                         if pandas.isnull(value):
                             value = None
                         data.append(value)
-                    data.insert(3, None)
                     data_sql = tuple(data)
+                    # print(data_sql)
 
                 try:
                     cursor.execute(sql_major_supplier, data_sql)
@@ -381,7 +394,7 @@ class InsertData(object):
         if dic_data['重大合同'] is not None:
             for major_contract in dic_data['重大合同']:
                 data = []
-                pkey = str(file_name) + str(major_contract['合同对手方名称']) + str(major_contract['标的'])
+                pkey = str(file_name) + str(major_contract['合同对手方名称']) + str(major_contract['合同金额']) + str(major_contract['标的'])
                 pkey_md5 = md5_passwd(pkey)
                 data.append(pkey_md5)
                 data.append(prospectusMD5)
@@ -438,7 +451,7 @@ class InsertData(object):
                 temp = key
                 for each_one in value:
                     data = []
-                    pkey = str(file_name) + str(import_time) + str(temp) + str(each_one.get('产品类别', None))
+                    pkey = str(file_name) + str(import_time) + str('营业收入分析') +  str(temp) + str(each_one.get('产品类别', None))
                     pkey_md5 = md5_passwd(pkey)
                     data.append(pkey_md5)
                     data.append(prospectusMD5)
@@ -457,7 +470,8 @@ class InsertData(object):
 
                     try:
                         cursor.execute(
-                            'insert into profitability(pkey, prospectusMD5, table_date, currency_unit, product_type, amount, proportion, movement, business_type, composition_type)'
+                            'insert into profitability(pkey, prospectusMD5, table_date, currency_unit, product_type,'
+                            'amount, proportion, movement, business_type, composition_type)'
                             'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data_sql)
                     except  Exception as e:
                         print(e, file_name, 10)
@@ -468,7 +482,7 @@ class InsertData(object):
                 temp = key
                 for each_one in value:
                     data = []
-                    pkey = str(file_name) + str(import_time) + str(temp) + str(each_one.get('产品类别', None))
+                    pkey = str(file_name) + str(import_time) + str('营业成本分析') +  str(temp) + str(each_one.get('产品类别', None))
                     pkey_md5 = md5_passwd(pkey)
                     data.append(pkey_md5)
                     data.append(prospectusMD5)
@@ -487,7 +501,8 @@ class InsertData(object):
 
                     try:
                         cursor.execute(
-                            'insert into profitability(pkey, prospectusMD5, table_date, currency_unit, product_type, amount, proportion, movement, business_type, composition_type)'
+                            'insert into profitability(pkey, prospectusMD5, table_date, currency_unit, product_type,'
+                            ' amount, proportion, movement, business_type, composition_type)'
                             'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data_sql)
                     except  Exception as e:
                         print(e, file_name, 11)
@@ -681,7 +696,7 @@ class InsertData(object):
                     try:
                         cursor.execute(sql_controlling_shareholder_info, data)
                     except Exception as e:
-                        print(e, file_name, 16)
+                        print(e, file_name, 20)
 
                 for each_one in dic_data['控股股东简要情况'].get('自然人', None):
                     data = []
@@ -694,13 +709,15 @@ class InsertData(object):
                     data.insert(7, None)
                     data.insert(8, None)
                     data.insert(9, '自然人')
-                    print(data.__len__())
+                    # print(data.__len__())
 
                     try:
-                        cursor.execute('insert into controlling_shareholder_info(pkey, prospectusMD5, name, identity_number, nationality, direct_holding_ratio, indirect_holding_ratio, nature_of_business, nature, type)'
+                        cursor.execute('insert into controlling_shareholder_info(pkey, prospectusMD5, name, '
+                                       'identity_number, nationality, direct_holding_ratio, indirect_holding_ratio,'
+                                       ' nature_of_business, nature, type)'
                                        'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data)
                     except Exception as e:
-                        print(e, file_name, 17)
+                        print(e, file_name, 21)
 
 
                 for each_one in dic_data['控股股东简要情况'].get('其他', None):
@@ -715,13 +732,15 @@ class InsertData(object):
                     data.insert(7, None)
                     data.insert(8, None)
                     data.insert(9, '其他')
-                    print(data)
+                    # print(data)
 
                     try:
-                        cursor.execute('insert into controlling_shareholder_info(pkey, prospectusMD5, name, nature, direct_holding_ratio, indirect_holding_ratio, nature_of_business, identity_number, nationality, type)'
+                        cursor.execute('insert into controlling_shareholder_info(pkey, prospectusMD5, name, nature, '
+                                       'direct_holding_ratio, indirect_holding_ratio, nature_of_business, identity_number,'
+                                       ' nationality, type)'
                                        'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', data)
                     except Exception as e:
-                        print(e, file_name, 18)
+                        print(e, file_name, 22)
 
     # 监事基本情况
     def supervisor_information(self, file_name, prospectusMD5, cursor, dic_data):
@@ -729,7 +748,7 @@ class InsertData(object):
         fp = open(error_file_route, "a", encoding='utf-8')
         fromat_supervisor_information = make_fromat(get_field_num(cursor, 'supervisor_information'))
         sql_supervisor_information = 'insert into supervisor_information values(%s)' % fromat_supervisor_information
-        if dic_data['控股股东简要情况'] is not None:
+        if dic_data['监事基本情况'] is not None:
             for person_infor in dic_data['监事基本情况']:
                 data = []
                 pkey = str(file_name) + str(person_infor['姓名']) + str(person_infor['出生年月'])
@@ -746,7 +765,7 @@ class InsertData(object):
                 try:
                     cursor.execute(sql_supervisor_information, data_sql)
                 except Exception as e:
-                    print(e, file_name, 21)
+                    print(e, file_name, 23)
                     infor = str(file_name + str(e))
                     fp.write(infor + '\n\r')
         fp.close()
@@ -757,7 +776,7 @@ class InsertData(object):
         fp = open(error_file_route, "a", encoding='utf-8')
         fromat_management_information = make_fromat(get_field_num(cursor, 'management_information'))
         sql_management_information = 'insert into management_information values(%s)' % fromat_management_information
-        if dic_data['控股股东简要情况'] is not None:
+        if dic_data['高管基本情况'] is not None:
             for person_infor in dic_data['高管基本情况']:
                 data = []
                 pkey = str(file_name) + str(person_infor['姓名']) + str(person_infor['出生年月'])
@@ -774,7 +793,7 @@ class InsertData(object):
                 try:
                     cursor.execute(sql_management_information, data_sql)
                 except Exception as e:
-                    print(e, file_name, 22)
+                    print(e, file_name, 24)
                     infor = str(file_name + str(e))
                     fp.write(infor + '\n\r')
         fp.close()
@@ -785,7 +804,7 @@ class InsertData(object):
         fp = open(error_file_route, "a", encoding='utf-8')
         fromat_core_technician_info = make_fromat(get_field_num(cursor, 'core_technician_info'))
         sql_core_technician_info = 'insert into core_technician_info values(%s)' % fromat_core_technician_info
-        if dic_data['控股股东简要情况'] is not None:
+        if dic_data['核心技术人员基本情况'] is not None:
             for person_infor in dic_data['核心技术人员基本情况']:
                 data = []
                 pkey = str(file_name) + str(person_infor['姓名']) + str(person_infor['出生年月'])
@@ -802,7 +821,7 @@ class InsertData(object):
                 try:
                     cursor.execute(sql_core_technician_info, data_sql)
                 except Exception as e:
-                    print(e, file_name, 23)
+                    print(e, file_name, 25)
                     infor = str(file_name + str(e))
                     fp.write(infor + '\n\r')
         fp.close()
