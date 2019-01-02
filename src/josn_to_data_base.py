@@ -23,8 +23,8 @@ def balance(self, fin_basic_gen, prospectusMD5):
     data_sql = tuple(data_bala)
     return data_sql
 
-# 现金流提取
-def cash_flow(self, fin_basic_gen, prospectusMD5):
+# 合并现金流提取
+def cash_flow(self, fin_basic_gen, prospectusMD5, file_name):
         data_cash = []
         unit = fin_basic_gen['货币单位']
         roport_data = fin_basic_gen['报表日期']
@@ -38,9 +38,10 @@ def cash_flow(self, fin_basic_gen, prospectusMD5):
             if pandas.isnull(value_cash):
                 value_cash = None
             data_cash.append(value_cash)
-
+        pkey = str(file_name) + str(roport_data)
+        pkey_md5 = md5_passwd(pkey)
         data_cash.insert(0, prospectusMD5)
-        data_cash.insert(0, None)
+        data_cash.insert(0, pkey_md5)
         data_sql = tuple(data_cash)
         return data_sql
 
@@ -113,7 +114,7 @@ def make_fromat(num):
 
 # 获取字段数
 def get_field_num(cursor, table_name):
-    sql = 'select COLUMN_NAME from information_schema.COLUMNS where table_name = "%s"' % table_name
+    sql = 'select COLUMN_NAME from information_schema.COLUMNS where table_name = "%s" and table_schema = "ipo_data_v2"' % table_name
     cursor.execute(sql)
     field = cursor.fetchall()
     num = field.__len__()
@@ -123,47 +124,47 @@ def get_field_num(cursor, table_name):
 # 数据获取并存入数据库
 class Json_to_Data_Base():
     def json_to_data_base(self):
-        db = pymysql.connect(db="ipo_data_from_table", user="root", password="root", host="127.0.0.1", port=3306)
+        db = pymysql.connect(db="ipo_data_v2", user="root", password="root", host="127.0.0.1", port=3306)
         cursor = db.cursor()
         # 数据库各表格字段数转变为%s的格式
-        # fromat_prospectus = make_fromat(get_field_num(cursor, 'prospectus'))
-        # sql_prospectus = 'insert into prospectus values(%s)' % fromat_prospectus
+        fromat_prospectus = make_fromat(get_field_num(cursor, 'prospectus'))
+        sql_prospectus = 'insert into prospectus values(%s)' % fromat_prospectus
 
-        # fromat_balance = make_fromat(get_field_num(cursor, 'balance'))
-        # sql_balance = 'insert into balance values(%s)' % fromat_balance
+        fromat_balance = make_fromat(get_field_num(cursor, 'balance'))
+        sql_balance = 'insert into balance values(%s)' % fromat_balance
 
-        # fromat_cash_flow = make_fromat(get_field_num(cursor, 'cash_flow'))
-        # sql_cash_flow = 'insert into cash_flow values(%s)' % fromat_cash_flow
+        fromat_cash_flow = make_fromat(get_field_num(cursor, 'cash_flow'))
+        sql_cash_flow = 'insert into cash_flow values(%s)' % fromat_cash_flow
 
-        # fromat_income = make_fromat(get_field_num(cursor, 'income'))
-        # sql_income = 'insert into income values(%s)' % fromat_income
+        fromat_income = make_fromat(get_field_num(cursor, 'income'))
+        sql_income = 'insert into income values(%s)' % fromat_income
 
-        # fromat_main_financial_indicators = make_fromat(get_field_num(cursor, 'main_financial_indicators'))
-        # sql_main_financial_indicators = 'insert into main_financial_indicators values(%s)' % fromat_main_financial_indicators
+        fromat_main_financial_indicators = make_fromat(get_field_num(cursor, 'main_financial_indicators'))
+        sql_main_financial_indicators = 'insert into main_financial_indicators values(%s)' % fromat_main_financial_indicators
 
-        # fromat_controller_information = make_fromat(get_field_num(cursor, 'controller_information'))
-        # sql_controller_information = 'insert into controller_information values(%s)' % fromat_controller_information
+        fromat_controller_information = make_fromat(get_field_num(cursor, 'controller_information'))
+        sql_controller_information = 'insert into controller_information values(%s)' % fromat_controller_information
 
-        # fromat_major_lawsuit = make_fromat(get_field_num(cursor, 'major_lawsuit'))
-        # sql_major_lawsuit = 'insert into major_lawsuit values(%s)' % fromat_major_lawsuit
+        fromat_major_lawsuit = make_fromat(get_field_num(cursor, 'major_lawsuit'))
+        sql_major_lawsuit = 'insert into major_lawsuit values(%s)' % fromat_major_lawsuit
 
-        # fromat_fund_raising = make_fromat(get_field_num(cursor, 'fund_raising'))
-        # sql_fund_raising = 'insert into fund_raising values(%s)' % fromat_fund_raising
+        fromat_fund_raising = make_fromat(get_field_num(cursor, 'fund_raising'))
+        sql_fund_raising = 'insert into fund_raising values(%s)' % fromat_fund_raising
 
-        # fromat_patent = make_fromat(get_field_num(cursor, 'patent'))
-        # sql_patent = 'insert into patent values(%s)' % fromat_patent
+        fromat_patent = make_fromat(get_field_num(cursor, 'patent'))
+        sql_patent = 'insert into patent values(%s)' % fromat_patent
 
-        # fromat_issuer_information = make_fromat(get_field_num(cursor, 'issuer_information'))
-        # sql_issuer_information = 'insert into issuer_information values(%s)' % fromat_issuer_information
+        fromat_issuer_information = make_fromat(get_field_num(cursor, 'issuer_information'))
+        sql_issuer_information = 'insert into issuer_information values(%s)' % fromat_issuer_information
 
-        # fromat_major_client = make_fromat(get_field_num(cursor, 'major_client'))
-        # sql_major_client = 'insert into major_client values(%s)' % fromat_major_client
+        fromat_major_client = make_fromat(get_field_num(cursor, 'major_client'))
+        sql_major_client = 'insert into major_client values(%s)' % fromat_major_client
 
-        # fromat_major_supplier = make_fromat(get_field_num(cursor, 'major_supplier'))
-        # sql_major_supplier = 'insert into major_supplier values(%s)' % fromat_major_supplier
+        fromat_major_supplier = make_fromat(get_field_num(cursor, 'major_supplier'))
+        sql_major_supplier = 'insert into major_supplier values(%s)' % fromat_major_supplier
 
-        # fromat_major_contract = make_fromat(get_field_num(cursor, 'major_contract'))
-        # sql_major_contract = 'insert into major_contract values(%s)' % fromat_major_contract
+        fromat_major_contract = make_fromat(get_field_num(cursor, 'major_contract'))
+        sql_major_contract = 'insert into major_contract values(%s)' % fromat_major_contract
 
         fromat_issuer_profession = make_fromat(get_field_num(cursor, 'issuer_profession'))
         sql_issuer_profession = 'insert into issuer_profession values(%s)' % fromat_issuer_profession
@@ -179,18 +180,20 @@ class Json_to_Data_Base():
         #     file_name = os.path.splitext(file)
         #     file_name = str(file_name[0])
         #     res = md5_passwd(file_name)
-        #     sql = 'insert into prospectus values(%s)' % fromat
-        #     cursor.execute(sql ,(file_name, res))
+        #     print(file_name)
+        #     print(res)
+        #     sql = 'insert into file values(%s, %s)'
+        #     cursor.execute(sql ,(res, file_name))
 
         # 从数据库中获取文件名和MD5数据
-        sql_get_name = 'select *  from prospectus'
+        sql_get_name = 'select *  from file'
         cursor.execute(sql_get_name)
         file_names = cursor.fetchall()
-        for file_name in file_names:
+        for file in file_names:
             # field,prospectus文件名和MD5码
-            field = file_name[0]
-            prospectusMD5 = file_name[1]
-            file_path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v2\json_final\%s.json' % field
+            file_name = file[1]
+            prospectusMD5 = file[0]
+            file_path = 'C:\\Users\DMJ\Desktop\工作日常记录\资料\json_v2\json_final\%s.json' %  file_name
             contents = codecs.open(file_path, 'r', encoding='utf-8')
             for content in contents:
                 dic_data = json.loads(content)
@@ -201,17 +204,17 @@ class Json_to_Data_Base():
             #     # print(data_bala)
 
             # 现金流
-            # if dic_data['财务基本情况及财务指标'] != None:
-            #     for fin_basic_gen in dic_data['财务基本情况及财务指标']:
-            #         # print(field)
-            #         if isinstance(fin_basic_gen['合并现金流量表'], dict):
-            #             data_cash_flow = cash_flow(self, fin_basic_gen, prospectusMD5)
-            #             print(data_cash_flow.__len__())
-            #             print(data_cash_flow)
-            #             try:
-            #                 cursor.execute(sql_cash_flow ,data_cash_flow)
-            #             except SQLAlchemyError as e:
-            #                 print(e)
+            if dic_data['财务基本情况及财务指标'] != None:
+                for fin_basic_gen in dic_data['财务基本情况及财务指标']:
+                    if isinstance(fin_basic_gen['合并现金流量表'], dict):
+                        data_cash_flow = cash_flow(self, fin_basic_gen, prospectusMD5, file_name)
+                        print(data_cash_flow.__len__())
+                        print(file_name)
+                        try:
+                            cursor.execute(sql_cash_flow ,data_cash_flow)
+                        except SQLAlchemyError as e:
+                            print(e)
+
 
             # 利润表
             # if dic_data['财务基本情况及财务指标'] != None:
@@ -477,7 +480,7 @@ class Json_to_Data_Base():
             #             print(e)
             #         print(data_sql)
 
-            # 盈利能力
+            # 盈利能力____________________________________________
             # for issuer_profession in dic_data['盈利能力']:
             #     import_time = issuer_profession['报表日期']
             #     for key, value in issuer_profession['营业收入分析'].items():

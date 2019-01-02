@@ -1,18 +1,21 @@
 import pymysql
 import xlrd
 from sqlalchemy.exc import SQLAlchemyError
-
+'''
+实现人工抽取和机器抽取的对比
+'''
 class DataComparison():
     def  data_comparison(self):
         # 获取表格中的数据
         ExcelFile = xlrd.open_workbook(r'C:\Users\DMJ\Desktop\工作日常记录\树磊哥\提取元素表-财务数据（资产负债表）.xls',formatting_info=True)
         sheet_name = ExcelFile.sheet_names()
         # print(sheet_name[0])
-        sheet = ExcelFile.sheet_by_name(sheet_name[212])
+        sheet = ExcelFile.sheet_by_name(sheet_name[202])
+        print(sheet_name[203])
         # print(sheet.name,sheet.nrows,sheet.ncols)
         # 读取表格某一列的数据
-        cols = sheet.col_values(7)
-        print(cols[40])
+        cols = sheet.col_values(4)
+        # print(cols[40])
 
         db = pymysql.connect(db="ipo_data", user="root", password="123456", host="172.20.20.100", port=3306)
         cursor = db.cursor()
@@ -24,7 +27,7 @@ class DataComparison():
                            ' BG_21082, BG_21091, BG_21043, BG_21046, BG_21031, BG_21034, BG_21097, BG_21100, BG_21000, BG_22001, BG_22004, BG_22007, BG_22010,'
                            ' BG_22013, BG_22019, BG_22022, BG_22000, BG_20000, BG_31001, BG_31004, BG_31007, BG_31013, BG_31016, BG_31022, BG_31019, BG_31025,'
                            ' BG_31000, BG_32001, BG_32000, BG_30000 from fin_bala_gen where '
-                           'ann_title = "2017-12-05_广东碧桂园物业服务股份有限公司首次公开发行股票招股说明书(申报稿2017年12" and col_date =  "2014年12月31日"')
+                           'ann_title = "2017-12-06_广东文灿压铸股份有限公司首次公开发行股票招股说明书(申报稿2017年12月1日" and col_date =  "2017-6-30"')
             data = cursor.fetchone()
         except SQLAlchemyError as e:
             print(e)
@@ -43,6 +46,8 @@ class DataComparison():
                     # print(temp)
                     # print(cols[num])
                     count = count + 1
+                else:
+                    print(temp,cols[num])
             num = num + 1
         print(num-3)
         print(number)

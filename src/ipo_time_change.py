@@ -398,6 +398,9 @@ def num_zero_pad(value):
 def percentage_process(value):
     value = str(value)
     if re.search(r'^(-?(\d)+(\.(\d)+)*)$', value):
+        value = float(value)
+        value = value*100
+        value = str(value)
         if re.search(r'^(-?(\d)+)$', value):
             value = value + '.00%'
         if re.search(r'(-?(\d)+(\.\d{1}))$', value):
@@ -406,11 +409,10 @@ def percentage_process(value):
             value = value + '%'
         if re.search(r'(-?(\d)+(\.\d{3,}))$', value):
             value = re.findall(r'(-?\d+\.\d{2})', value)
-            if value.__len__() == 1:
+            if value.__len__() ==1:
                 value = value[0] + "%"
     else:
         value = None
-
     return value
 
 # 金额
@@ -491,15 +493,16 @@ def amount_change(dic_data):
                             for echo_amount in value_secount:
                                 if isinstance(echo_amount, dict):
                                     for key_third, value_third in echo_amount.items():
-                                        if re.search(r'^(-?\d+)(\.\d+)?$', str(value_third)):
-                                            if re.search(r'^(-?\d+)(\.\d+)$', str(value_third)):
-                                                value_third = float(value_third)
-                                            else:
-                                                value_third = int(value_third)
-                                            amount = "{:,}".format(value_third)
-                                            amount = num_zero_pad(amount)
-                                            echo_amount[key_third] = amount
-        # print(dic_data['盈利能力'])
+                                        if key_third != '占比（%）' and key_third != '变动比例（%）':
+                                            if re.search(r'^(-?\d+)(\.\d+)?$', str(value_third)):
+                                                if re.search(r'^(-?\d+)(\.\d+)$', str(value_third)):
+                                                    value_third = float(value_third)
+                                                else:
+                                                    value_third = int(value_third)
+                                                amount = "{:,}".format(value_third)
+                                                amount = num_zero_pad(amount)
+                                                echo_amount[key_third] = amount
+            # print(dic_data['盈利能力'])
 
     # 重大合同,正则意外错误
     if dic_data['重大合同'] is not None:
@@ -523,7 +526,7 @@ def amount_change(dic_data):
         for major_supplier in dic_data['主要供应商']:
             if isinstance(major_supplier, dict):
                 for key_first, value_first in major_supplier.items():
-                    if key_first != '时间':
+                    if key_first != '时间' and key_first != '占总采购金额比例（%）':
                         if re.search(r'^(-?\d+)(\.\d+)?$', str(value_first)):
                             if re.search(r'^(-?\d+)(\.\d+)$', str(value_first)):
                                 value_first = float(value_first)
@@ -539,7 +542,7 @@ def amount_change(dic_data):
         for major_client in dic_data['主要客户']:
             if isinstance(major_client, dict):
                 for key_first, value_first in major_client.items():
-                    if key_first != '时间':
+                    if key_first != '时间' and key_first != '占主营收入比例（%）' and key_first != '占营业收入比例（%）':
                         if re.search(r'^(-?\d+)(\.\d+)?$', str(value_first)):
                             if re.search(r'^(-?\d+)(\.\d+)$', str(value_first)):
                                 value_first = float(value_first)
@@ -799,6 +802,70 @@ def lawsuit_change(dic_data):
 
     return dic_data
 
+def percentage_change(dic_data):
+    if dic_data['控股股东简要情况'] is not None:
+        # print(type(dic_data['控股股东简要情况']['法人']))
+        for item in dic_data['控股股东简要情况']['法人']:
+            for key_first, value_first in item.items():
+                if key_first == '直接持股比例（%）' or key_first == '间接持股比例（%）':
+                    item[key_first] = percentage_process(value_first)
+        for item in dic_data['控股股东简要情况']['自然人']:
+            for key_first, value_first in item.items():
+                if key_first == '直接持股比例（%）' or key_first == '间接持股比例（%）':
+                    item[key_first] = percentage_process(value_first)
+        for item in dic_data['控股股东简要情况']['其他']:
+            for key_first, value_first in item.items():
+                if key_first == '直接持股比例（%）' or key_first == '间接持股比例（%）':
+                    item[key_first] = percentage_process(value_first)
+
+        # 实际控制人
+        for item in dic_data['实际控制人简要情况']['国有控股主体']:
+            for key_first, value_first in item.items():
+                if key_first == '直接持股比例（%）' or key_first == '间接持股比例（%）':
+                    item[key_first] = percentage_process(value_first)
+        for item in dic_data['实际控制人简要情况']['自然人']:
+            for key_first, value_first in item.items():
+                if key_first == '直接持股比例（%）' or key_first == '间接持股比例（%）':
+                    item[key_first] = percentage_process(value_first)
+        for item in dic_data['实际控制人简要情况']['其他']:
+            for key_first, value_first in item.items():
+                if key_first == '直接持股比例（%）' or key_first == '间接持股比例（%）':
+                    item[key_first] = percentage_process(value_first)
+
+        #主要客户
+        if dic_data['主要客户'] is not None:
+            for item in dic_data['主要客户']:
+                if isinstance(item, dict):
+                    for key_first, value_first in item.items():
+                        if key_first == '占主营收入比例（%）' or key_first == '占营业收入比例（%）':
+                            item[key_first] = percentage_process(value_first)
+                            # print(item[key_first])
+
+        # 主要供应商
+        if dic_data['主要供应商'] is not None:
+            for item in dic_data['主要供应商']:
+                if isinstance(item, dict):
+                    for key_first, value_first in item.items():
+                        if key_first == '占总采购金额比例（%）':
+                            item[key_first] = percentage_process(value_first)
+                            print(item[key_first])
+
+
+        # 盈利能力
+        if dic_data['盈利能力'] is not None:
+            for issuer_profession in dic_data['盈利能力']:
+                if isinstance(issuer_profession, dict):
+                    for key_first, value_first in issuer_profession.items():
+                        if isinstance(value_first, dict):
+                            for key_secount, value_secount in value_first.items():
+                                for echo_amount in value_secount:
+                                    if isinstance(echo_amount, dict):
+                                        for key_third, value_third in echo_amount.items():
+                                            if key_third == '占比（%）' or key_third == '变动比例（%）':
+                                                amount = percentage_process(value_third)
+                                                echo_amount[key_third] = amount
+    return dic_data
+
 class FormatChange():
     def format_change(self):
         # 文件内容读取
@@ -808,38 +875,38 @@ class FormatChange():
             with open(file_path, encoding='utf-8') as p_file:
                 dic_data = json.load(p_file)
 
-            # 时间格式规整
-            dic_data = json_time_change(dic_data)
-            # 境外居住权规整
-            dic_data = overseas_residency_change(dic_data)
-            #是否存在权属纠纷
-            dic_data = patent_ownership(dic_data)
-            # 性别 学历规范化
-            dic_data = gander_education_change(dic_data)
-            # 金额
-            dic_data = amount_change(dic_data)
-            # 国籍 + 企业性质 + 职称 + 职位(多个职位职称的不能处理)
-            dic_data = nationality_change(dic_data)
-            # 行业分类代码
-            dic_data = industry_code_change(dic_data)
-            # 行业分类标准
-            dic_data = industry_standard_change(dic_data)
-            # 行业分类名称
-            dic_data = industry_name_change(dic_data)
-            # 诉讼类型
-            dic_data = lawsuit_change(dic_data)
+            # # 时间格式规整
+            # dic_data = json_time_change(dic_data)
+            # # 境外居住权规整
+            # dic_data = overseas_residency_change(dic_data)
+            # #是否存在权属纠纷
+            # dic_data = patent_ownership(dic_data)
+            # # 性别 学历规范化
+            # dic_data = gander_education_change(dic_data)
+            # # 金额
+            # dic_data = amount_change(dic_data)
+            # # 国籍 + 企业性质 + 职称 + 职位(多个职位职称的不能处理)
+            # dic_data = nationality_change(dic_data)
+            # # 行业分类代码
+            # dic_data = industry_code_change(dic_data)
+            # # 行业分类标准
+            # dic_data = industry_standard_change(dic_data)
+            # # 行业分类名称
+            # dic_data = industry_name_change(dic_data)
+            # # 诉讼类型
+            # dic_data = lawsuit_change(dic_data)
             # 百分比处理
-            dic_data
+            dic_data = percentage_change(dic_data)
 
 
             # print(dic_data['主要客户'])
             # print(dic_data['财务基本情况及财务指标'])
 
 
-            json_data = json.dumps(dic_data, ensure_ascii=False).replace(" NaN", '"无"')
-            file_path_changed = os.path.join(json_file_changed, json_file)
-            with open(file_path_changed, 'w', encoding='utf-8') as n_file:
-                n_file.write(json_data)
+            # json_data = json.dumps(dic_data, ensure_ascii=False).replace(" NaN", '"无"')
+            # file_path_changed = os.path.join(json_file_changed, json_file)
+            # with open(file_path_changed, 'w', encoding='utf-8') as n_file:
+            #     n_file.write(json_data)
 
 
 if __name__ == '__main__':
