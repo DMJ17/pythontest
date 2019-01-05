@@ -120,7 +120,7 @@ def financial_indicators(self, fin_basic_gen, prospectusMD5, file_name):
     data.append(unit)
     data.append(roport_data)
 
-    for key_bala, value_fin in fin_basic_gen['基本财务指标'].items():
+    for key_bala, value_fin in fin_basic_gen['主要财务指标表'].items():
         if pandas.isnull(value_fin):
             value_fin = None
         data.append(value_fin)
@@ -576,7 +576,7 @@ class InsertData():
         sql_main_financial_indicators = 'insert into main_financial_indicators values(%s)' % fromat_main_financial_indicators
         if dic_data['财务基本情况及财务指标'] is not None:
             for fin_basic_gen in dic_data['财务基本情况及财务指标']:
-                if isinstance(fin_basic_gen['基本财务指标'], dict):
+                if isinstance(fin_basic_gen['主要财务指标表'], dict):
                     data_fin_ind = financial_indicators(self, fin_basic_gen, prospectusMD5, file_name)
 
                     try:
@@ -607,6 +607,7 @@ class InsertData():
                     data.insert(8, None)
                     data.insert(9, None)
                     data.insert(10,'国有控股主体')
+                    # print(data)
 
                     try:
                         cursor.execute(sql_actual_controller_info, data)
@@ -615,7 +616,7 @@ class InsertData():
 
                 for each_one in dic_data['实际控制人简要情况'].get('自然人', None):
                     data = []
-                    pkey = str(file_name) + str(each_one.get('姓名', None))
+                    pkey = str(file_name) + str(each_one.get('名称', None))
                     pkey_md5 = md5_passwd(pkey)
                     data.append(pkey_md5)
                     data.append(prospectusMD5)
@@ -625,6 +626,7 @@ class InsertData():
                     data.insert(8, None)
                     data.insert(9, None)
                     data.insert(10, '自然人')
+                    # print(data)
 
                     try:
                         cursor.execute('insert into actual_controller_info(pkey, prospectusMD5, name, principal, identity_number, '
@@ -700,7 +702,7 @@ class InsertData():
 
                 for each_one in dic_data['控股股东简要情况'].get('自然人', None):
                     data = []
-                    pkey = str(file_name) + str(each_one.get('姓名', None))
+                    pkey = str(file_name) + str(each_one.get('名称', None))
                     pkey_md5 = md5_passwd(pkey)
                     data.append(pkey_md5)
                     data.append(prospectusMD5)
