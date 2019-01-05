@@ -319,37 +319,79 @@ def patent_ownership(dic_data):
 
 # 学历规范化函数
 def education_change(value):
+    value_fin = ''
     if value is not None:
-        value = value.replace(' ', '')
-        if value.find('初中') != -1:
-            value = "初中"
-        if value.find('高中') != -1:
-            value = "高中"
-        if value.find('中专') != -1:
-            value = "中专"
-        if value.find('大专') != -1:
-            value = "大专"
-        if value.find('专科') != -1:
-            value = "专科"
-        if value.find('学士') != -1 or value.find('本科') != -1 or value.find('大学') != -1:
-            value = "本科"
-        if value.find('硕士') != -1 or value.find('研究生') != -1:
-            value = "硕士"
-        if value.find('博士') != -1 and value.find('博士后') == -1:
-            value = "博士"
-        if value.find('博士后') != -1:
-            value = "博士后"
-        if value.find('EMBA') != -1:
-            value = "EMBA"
-        if value.find('MBA') != -1:
-            value = "MBA"
-        if value.find('MPAcc') != -1:
-            value = "MPAcc"
-        if value is not None and value != '' and value != '无' and value != '-' and value not in (
-                '本科', '硕士', '大专', '博士', '高中', '中专', '初中', 'EMBA', 'MBA', 'MPAcc', '博士后', '其他', '研究生', '博士研究生', '专科'):
-            value = '其它'
+        value_list = value.split('、')
+        # print(value_list)
+        for value in value_list:
+            if value is not None:
+                value = value.replace(' ', '')
+                if value.find('初中') != -1:
+                    value = "初中"
+                if value.find('高中') != -1:
+                    value = "高中"
+                if value.find('中专') != -1:
+                    value = "中专"
+                if value.find('大专') != -1:
+                    value = "大专"
+                if value.find('专科') != -1:
+                    value = "专科"
+                if value.find('学士') != -1 or value.find('本科') != -1 or value.find('大学') != -1:
+                    value = "本科"
+                if value.find('硕士') != -1 or value.find('研究生') != -1:
+                    value = "硕士"
+                if value.find('博士') != -1 and value.find('博士后') == -1:
+                    value = "博士"
+                if value.find('博士后') != -1:
+                    value = "博士后"
+                if value.find('EMBA') != -1:
+                    value = "EMBA"
+                if value.find('MBA') != -1:
+                    value = "MBA"
+                if value.find('MPAcc') != -1:
+                    value = "MPAcc"
+                if value is not None and value != '' and value != '无' and value != '-' and value not in (
+                        '本科', '硕士', '大专', '博士', '高中', '中专', '初中', 'EMBA', 'MBA', 'MPAcc', '博士后', '其他', '研究生', '博士研究生',
+                        '专科'):
+                    value = '其它'
+                if value_fin != '':
+                    value_fin = value_fin + ';' + value
+                else:
+                    value_fin = value
+        # print(value_fin)
 
-    return value
+    # if value is not None:
+    #     value = value.replace(' ', '')
+    #     if value.find('初中') != -1:
+    #         value = "初中"
+    #     if value.find('高中') != -1:
+    #         value = "高中"
+    #     if value.find('中专') != -1:
+    #         value = "中专"
+    #     if value.find('大专') != -1:
+    #         value = "大专"
+    #     if value.find('专科') != -1:
+    #         value = "专科"
+    #     if value.find('学士') != -1 or value.find('本科') != -1 or value.find('大学') != -1:
+    #         value = "本科"
+    #     if value.find('硕士') != -1 or value.find('研究生') != -1:
+    #         value = "硕士"
+    #     if value.find('博士') != -1 and value.find('博士后') == -1:
+    #         value = "博士"
+    #     if value.find('博士后') != -1:
+    #         value = "博士后"
+    #     if value.find('EMBA') != -1:
+    #         value = "EMBA"
+    #     if value.find('MBA') != -1:
+    #         value = "MBA"
+    #     if value.find('MPAcc') != -1:
+    #         value = "MPAcc"
+    #     if value is not None and value != '' and value != '无' and value != '-' and value not in (
+    #             '本科', '硕士', '大专', '博士', '高中', '中专', '初中', 'EMBA', 'MBA', 'MPAcc', '博士后', '其他', '研究生', '博士研究生', '专科'):
+    #         value = '其它'
+    if value_fin == '':
+        value_fin = None
+    return value_fin
 
 
 # 性别 学历规范化
@@ -397,6 +439,7 @@ def num_zero_pad(value):
 # 百分比处理
 def percentage_process(value):
     value = str(value)
+    # print(value)
     if re.search(r'^(-?(\d)+(\.(\d)+)*)$', value):
         value = float(value)
         value = value*100
@@ -471,18 +514,20 @@ def amount_change(dic_data):
                             fin_basic_gen['合并利润表'][key_fist] = amount
             # print(fin_basic_gen['合并利润表'])
 
-            if isinstance(fin_basic_gen['基本财务指标'], dict):
-                for key_fist, value_fist in fin_basic_gen['基本财务指标'].items():
-                    if re.search(r'^(-?\d+)(\.\d+)?$', str(value_fist)):
-                        if re.search(r'^(-?\d+)(\.\d+)$', str(value_fist)):
-                            value_fist = float(value_fist)
-                        else:
-                            value_fist = int(value_fist)
-                        amount = "{:,}".format(value_fist)
-                        amount = num_zero_pad(amount)
-                        fin_basic_gen['基本财务指标'][key_fist] = amount
+            if isinstance(fin_basic_gen['主要财务指标表'], dict):
+                for key_first, value_first in fin_basic_gen['主要财务指标表'].items():
+                    if key_first != '资产负债率（合并）' and key_first != '资产负债率(母公司）' and key_first != '无形资产（扣除土地使用权、水面养殖权和采矿权等后）占净资产的比例（%）' \
+                            and key_first != '应收账款周转率(次/年)' and key_first != '总资产周转率(次/年)' and key_first != '加权平均净资产收益率':
+                        if re.search(r'^(-?\d+)(\.\d+)?$', str(value_first)):
+                            if re.search(r'^(-?\d+)(\.\d+)$', str(value_first)):
+                                value_fist = float(value_first)
+                            else:
+                                value_fist = int(value_first)
+                            amount = "{:,}".format(value_fist)
+                            amount = num_zero_pad(amount)
+                            fin_basic_gen['主要财务指标表'][key_first] = amount
 
-                # print(fin_basic_gen['基本财务指标'])
+                # print(fin_basic_gen['主要财务指标表'])
 
     # 盈利能力,正则意外错误
     if dic_data['盈利能力'] is not None:
@@ -584,9 +629,11 @@ def amount_change(dic_data):
                         value_mon = re.findall(r'^(-?\d+)(\.\d+)*', value_first)
                         if value_mon.__len__() == 1:
                             value_mon = value_mon[0][0] + value_mon[0][1]
+
                             # 单位提取换算
                             value_unit = value_first.replace(value_mon, '')
-                            if value_unit is not None and value_unit != '':
+                            # if value_unit is not None and value_unit != '':
+                            if re.search(r'^(-?\d+)(\.\d+)?$', str(value_mon)):
                                 value_mon = float(value_mon)
                                 if value_unit.find('元') >= 0 and value_unit.find('美') == -1 and value_unit.find(
                                         '欧') == -1 and value_unit.find('港') == -1:
@@ -596,12 +643,14 @@ def amount_change(dic_data):
                                         '欧') == -1 and value_unit.find('港') == -1:
                                     value_mon = value_mon * 100
 
-                                if value_unit.find('千元') >= 0 and value_unit.find('美') == -1 and value_unit.find(
-                                        '欧') == -1 and value_unit.find('港') == -1:
+                                if (value_unit.find('千元') >= 0 and value_unit.find('美') == -1 and value_unit.find(
+                                        '欧') == -1 and value_unit.find('港') == -1) or (value_unit.find('千') >= 0 and value_unit.find('美') == -1 and value_unit.find(
+                                        '欧') == -1 and value_unit.find('港') == -1):
                                     value_mon = value_mon * 1000
 
-                                if value_unit.find("万元") >= 0 and value_unit.find('美') == -1 and value_unit.find(
-                                        '欧') == -1 and value_unit.find('港') == -1:
+                                if (value_unit.find("万元") >= 0 and value_unit.find('美') == -1 and value_unit.find(
+                                        '欧') == -1 and value_unit.find('港') == -1) or (value_unit.find("万") >= 0 and value_unit.find('美') == -1 and value_unit.find(
+                                        '欧') == -1 and value_unit.find('港') == -1):
                                     value_mon = value_mon * 10000
 
                                 if value_unit.find("十万元") >= 0 and value_unit.find('美') == -1 and value_unit.find(
@@ -626,11 +675,16 @@ def amount_change(dic_data):
                                         value_first = float(value_mon)
                                     else:
                                         value_first = int(value_mon)
+                                    if value_first > 10000:
+                                        value_first = value_first/10000
                                     amount = "{:,}".format(value_first)
                                     amount = num_zero_pad(amount)
+                                    amount = str(amount) + '万元'
                                 if value_unit.find('美') >= 0 or value_unit.find('欧') >= 0 or value_unit.find('港') >= 0:
                                     amount = temp
                             major_lawsuit[key_first] = amount
+                            # print(major_lawsuit[key_first] )
+                            # print('--------------------------------')
 
         # print(dic_data['重大诉讼事项'])
         return dic_data
@@ -668,46 +722,47 @@ string_list:匹配字符串列表
 suitability：所需匹配度
 """
 def string_matching(value, string_list, suitability):
-        sim_last = 0
-        if value is not None:
-            for string_each in string_list:
-                sim_lev = Levenshtein.ratio(value, string_each)
-                if sim_lev > sim_last:
-                    string_last = string_each
-                    sim_last = sim_lev
-            if sim_last > suitability:
-                value = string_last
+        # sim_last = 0
+        # if value is not None:
+        #     for string_each in string_list:
+        #         sim_lev = Levenshtein.ratio(value, string_each)
+        #         if sim_lev > sim_last:
+        #             string_last = string_each
+        #             sim_last = sim_lev
+        #     if sim_last > suitability:
+        #         value = string_last
 
-        return value
+        value_fin = ''
+        if value is not None:
+            value_list = value.split('、')
+            # print(value_list)
+            for item in value_list:
+                sim_last = 0
+
+                for string_each in string_list:
+                    sim_lev = Levenshtein.ratio(item, string_each)
+                    if sim_lev > sim_last:
+                        string_last = string_each
+                        sim_last = sim_lev
+                if sim_last > suitability:
+                    item_fin = string_last
+                    if value_fin != '':
+                        value_fin = value_fin + ';' + item_fin
+                    else:
+                        value_fin = item_fin
+                else:
+                    if value_fin != '':
+                        value_fin = value_fin + ';' + item
+                    else:
+                        value_fin = item
+
+        if value_fin == '':
+            value_fin = None
+        return value_fin
+
 
 # 国籍规整行数
 def nationality(value):
-    # 优点：能够识别中国大陆籍等特殊字符串，确定编写繁琐
-    # nationality_list = [
-    #     '菲律宾', '荷兰', '法国', '奥地利', '圣基茨和尼维斯联邦', '美国', '加拿大',
-    #     '新加坡', '澳大利亚', '日本', '英国','意大利', '马来西亚', '韩国', '新西兰', '葡萄牙', '瑞士',
-    #     '德国', '印度', '比利时', '其他'
-    # ]
-
-    # value = value.replace(' ', '')
-    # if value.find('中国') != -1:
-    #     if value.find('中国台湾') != -1:
-    #         value = '中国台湾'
-    #     elif value.find('中国香港') != -1:
-    #         value = '中国香港'
-    #     elif value.find('中国澳门') != -1:
-    #         value = '中国澳门'
-    #     elif value.find('中国') != -1:
-    #         value = '中国'
-    # else:
-    #     for nationlity in nationality_list:
-    #         if value.find(nationlity) != -1:
-    #             value = nationlity
-    #         elif value.find('圣基茨和尼维斯') != -1:
-    #                 value = '圣基茨和尼维斯联邦'
-    #     if value not in nationality_list and value != '无' and value is not None and value != '-':
-    #         value = '其它'
-
     if value is not None:
         value = value.replace(' ', '')
         value = string_matching(value, nationality_list, 0.6)
@@ -725,14 +780,16 @@ def nationality_change(dic_data):
             sup_infor['职称'] = string_matching(sup_infor['职称'], job_title_list, 0.6)
             if sup_infor['现任职务'] is not None:
                 sup_infor['现任职务'] = str(cmp_name) + ':' + string_matching(sup_infor['现任职务'], current_title_list, 0.6)
+                # print(sup_infor['现任职务'])
 
     if dic_data['董事基本情况'] is not None:
         for dir_infor in dic_data['董事基本情况']:
             dir_infor['国籍'] = nationality(dir_infor['国籍'])
             dir_infor['职称'] = string_matching(dir_infor['职称'], job_title_list, 0.6)
             if dir_infor['现任职务'] is not None:
+                # print(dir_infor['现任职务'])
                 dir_infor['现任职务'] = str(cmp_name) + ':' + string_matching(dir_infor['现任职务'], current_title_list, 0.6)
-            # print(dir_infor['现任职务'])
+                # print(dir_infor['现任职务'])
 
     if dic_data['高管基本情况'] is not None:
         for man_infor in dic_data['高管基本情况']:
@@ -896,6 +953,8 @@ def percentage_change(dic_data):
                     for key_first, value_first in item.items():
                         if key_first == '占主营收入比例（%）' or key_first == '占营业收入比例（%）':
                             item[key_first] = percentage_process(value_first)
+                        if key_first == '货币单位':
+                            item[key_first] = '万元'
                             # print(item[key_first])
 
         # 主要供应商
@@ -905,7 +964,9 @@ def percentage_change(dic_data):
                     for key_first, value_first in item.items():
                         if key_first == '占总采购金额比例（%）':
                             item[key_first] = percentage_process(value_first)
-                            print(item[key_first])
+                        if key_first == '货币单位':
+                            item[key_first] = '万元'
+                            # print(item[key_first])
 
 
         # 盈利能力
@@ -921,49 +982,61 @@ def percentage_change(dic_data):
                                             if key_third == '占比（%）' or key_third == '变动比例（%）':
                                                 amount = percentage_process(value_third)
                                                 echo_amount[key_third] = amount
+
+        #主要财务指标
+        if dic_data['财务基本情况及财务指标'] is not None:
+            for fin_basic_gen in dic_data['财务基本情况及财务指标']:
+                if isinstance(fin_basic_gen['主要财务指标表'], dict):
+                    for key_first, value_first in fin_basic_gen['主要财务指标表'].items():
+                        if key_first == '资产负债率（合并）' or key_first == '资产负债率(母公司）' or key_first == '无形资产（扣除土地使用权、水面养殖权和采矿权等后）占净资产的比例（%）'\
+                               or key_first == '应收账款周转率(次/年)' or key_first == '总资产周转率(次/年)'or key_first == '加权平均净资产收益率':
+                            fin_basic_gen['主要财务指标表'][key_first] = percentage_process(value_first)
+                            # print(fin_basic_gen['主要财务指标表']['总资产周转率(次/年)'] )
+                    # print( fin_basic_gen['主要财务指标表'])
+
     return dic_data
 
 class FormatChange():
     def format_change(self):
         # 文件内容读取
         for index_file, json_file in enumerate(os.listdir(json_file_path)):
-            # print(index_file, json_file)
+            print(index_file, json_file)
             file_path = os.path.join(json_file_path, json_file)
             with open(file_path, encoding='utf-8') as p_file:
                 dic_data = json.load(p_file)
 
-            # # 时间格式规整
-            # dic_data = json_time_change(dic_data)
-            # # 境外居住权规整
-            # dic_data = overseas_residency_change(dic_data)
-            # #是否存在权属纠纷
-            # dic_data = patent_ownership(dic_data)
-            # # 性别 学历规范化
-            # dic_data = gander_education_change(dic_data)
+            # 时间格式规整
+            dic_data = json_time_change(dic_data)
+            # 境外居住权规整
+            dic_data = overseas_residency_change(dic_data)
+            #是否存在权属纠纷
+            dic_data = patent_ownership(dic_data)
+            # 性别 学历规范化
+            dic_data = gander_education_change(dic_data)
             # 金额
             dic_data = amount_change(dic_data)
-            # # 国籍 + 企业性质 + 职称 + 职位(多个职位职称的不能处理)
-            # dic_data = nationality_change(dic_data)
-            # # 行业分类代码
-            # dic_data = industry_code_change(dic_data)
-            # # 行业分类标准
-            # dic_data = industry_standard_change(dic_data)
-            # # 行业分类名称
-            # dic_data = industry_name_change(dic_data)
-            # # 诉讼类型
-            # dic_data = lawsuit_change(dic_data)
-            # # 百分比处理
-            # dic_data = percentage_change(dic_data)
+            # 国籍 + 企业性质 + 职称 + 职位
+            dic_data = nationality_change(dic_data)
+            # 行业分类代码
+            dic_data = industry_code_change(dic_data)
+            # 行业分类标准
+            dic_data = industry_standard_change(dic_data)
+            # 行业分类名称
+            dic_data = industry_name_change(dic_data)
+            # 诉讼类型
+            dic_data = lawsuit_change(dic_data)
+            # 百分比处理
+            dic_data = percentage_change(dic_data)
 
 
-            # print(dic_data['主要客户'])
-            print(dic_data['重大诉讼事项'])
+            # print(dic_data['财务基本情况及财务指标'])
+            # print(dic_data['重大诉讼事项'])
 
 
-            # json_data = json.dumps(dic_data, ensure_ascii=False).replace(" NaN", '"无"')
-            # file_path_changed = os.path.join(json_file_changed, json_file)
-            # with open(file_path_changed, 'w', encoding='utf-8') as n_file:
-            #     n_file.write(json_data)
+            json_data = json.dumps(dic_data, ensure_ascii=False).replace(" NaN", '"无"')
+            file_path_changed = os.path.join(json_file_changed, json_file)
+            with open(file_path_changed, 'w', encoding='utf-8') as n_file:
+                n_file.write(json_data)
 
 
 if __name__ == '__main__':
